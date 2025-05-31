@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lolly_app/views/screens/nav_screens/home_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -9,7 +10,10 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _pageIndex = 0;
+  final  List<Widget> _pages = [
+    HomeScreen(),
 
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +65,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
       ),
+      body: _pages[_pageIndex],
 
     );
   }
