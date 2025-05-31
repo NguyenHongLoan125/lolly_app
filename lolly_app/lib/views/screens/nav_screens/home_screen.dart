@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/banner_widget.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/category_item.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -83,9 +84,9 @@ class _LollyScreenState extends State<HomeScreen> {
             bottom: 0,
             child: Container(
               padding: const EdgeInsets.only(
+                top: 16,
                 left: 16,
                 right: 16,
-                top: 16,
               ),
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -94,19 +95,39 @@ class _LollyScreenState extends State<HomeScreen> {
                   topRight: Radius.circular(32),
                 ),
               ),
-              child: ListView.builder(
+              child:ListView.builder(
                 controller: _scrollController,
-                itemCount: 30,
+                itemCount: 31,
                 itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    height: 80,
-                    color: Colors.grey[200],
-                    alignment: Alignment.center,
-                    child: Text("Nội dung $index"),
-                  );
+                  if (index == 0) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Danh mục',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF007400),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        CategoryItem(),
+                      ],
+                    );
+                  } else {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      height: 80,
+                      color: Colors.grey[200],
+                      alignment: Alignment.center,
+                      child: Text("Nội dung ${index - 1}"),
+                    );
+                  }
                 },
               ),
+
+
             ),
           ),
         ],
