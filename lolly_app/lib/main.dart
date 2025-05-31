@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lolly_app/controllers/category_controller.dart';
 import 'package:lolly_app/views/screens/main_screens.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:get/get.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -9,6 +11,7 @@ void main() async {
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZham1ycWVraXZwc250cmR5a2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MjQxODUsImV4cCI6MjA2NDIwMDE4NX0.qP7fRO9HbRROLF-Rd0nJL9utUbC_PyRLn-VqFHbYcqU', // Dán anon public key của bạn vào đây
   );
   WidgetsFlutterBinding.ensureInitialized(); // bắt buộc cho async trong main
+
   runApp(const MyApp());
 }
 
@@ -18,7 +21,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -40,6 +43,11 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: MainScreen(),
+      initialBinding: BindingsBuilder(() {
+        Get.put<CategoryController>(CategoryController());
+
+      }),
+
     );
   }
 }
