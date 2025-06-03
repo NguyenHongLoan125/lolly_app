@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/banner_widget.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/category_item.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/popular_dishes_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -95,12 +96,11 @@ class _LollyScreenState extends State<HomeScreen> {
                   topRight: Radius.circular(32),
                 ),
               ),
-              child:ListView.builder(
+              child:CustomScrollView(
                 controller: _scrollController,
-                itemCount: 31,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return Column(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -111,23 +111,32 @@ class _LollyScreenState extends State<HomeScreen> {
                             color: Color(0xFF007400),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        CategoryItem(),
+                        Transform.translate(
+                          offset: Offset(0, -15),
+                          child: SizedBox(
+                            height: 135,
+                            child: CategoryItem(),
+                          ),
+                        ),
                       ],
-                    );
-                  } else {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      height: 80,
-                      color: Colors.grey[200],
-                      alignment: Alignment.center,
-                      child: Text("Nội dung ${index - 1}"),
-                    );
-                  }
-                },
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        'Món ăn phổ biến',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF007400),
+                        ),
+                      ),
+                    ),
+                  ),
+                  PopularDishesWidget(),
+                ],
               ),
-
-
             ),
           ),
         ],
