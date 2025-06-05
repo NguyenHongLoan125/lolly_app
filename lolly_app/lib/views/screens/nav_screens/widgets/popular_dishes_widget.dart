@@ -20,7 +20,7 @@ class _PopularDishesWidgetState extends State<PopularDishesWidget> {
 
     _dishesStream = Supabase.instance.client
         .from('dishes')
-        .select('*, categories(category_name)')
+        .select('*, sub_categories(sub_category_name)')
         .order(createdAtColumnInProductsTable, ascending: false)
         .asStream()
         .handleError((error, stackTrace) {
