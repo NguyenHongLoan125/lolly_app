@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lolly_app/models/catygory_models.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/category_button_list.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/dish_item.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -15,6 +16,7 @@ class CategoryDishScreen extends StatefulWidget {
 class _CategoryDishScreenState extends State<CategoryDishScreen> {
   final ScrollController _scrollController = ScrollController();
   final double _categoryButtonWidth = 130;
+  String? _selectedSubCategory;
 
   void _scrollRight() {
     final double newOffset =
@@ -43,13 +45,23 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
     return categoryMap;
   }
 
+  Future<List<String>> fetchSubCategoriesByCategoryName(String categoryName) async {
+    final List<Map<String, dynamic>> data = await Supabase.instance.client
+        .from('sub_categories')
+        .select('sub_category_name, categories!inner(category_name)')
+        .eq('categories.category_name', categoryName);
+
+    return data.map<String>((e) => e['sub_category_name'] as String).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Stream<List<Map<String, dynamic>>> dishStream = Supabase.instance.client
         .from('dishes')
-        .select('*, categories(*)')
+        .select('*, sub_categories(*, categories(id, category_name))')
         .order('created_at', ascending: false)
         .asStream();
+
 
     return Scaffold(
       backgroundColor: const Color(0xFFECF5E3),
@@ -90,10 +102,16 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _categoryButton("Món khai vị"),
-                          _categoryButton("Món chính"),
-                          _categoryButton("Món tráng miệng"),
-                          _categoryButton("Đồ uống"),
+                          SubCategoryButtons(
+                            categoryName: widget.categoryModel.category_name,
+                            selectedSubCategory: _selectedSubCategory,
+                            onSubCategorySelected: (selectedSubCat) {
+                              setState(() {
+                                _selectedSubCategory = selectedSubCat == "Tất cả" ? null : selectedSubCat;
+                              });
+                            },
+                          ),
+
                         ],
                       ),
                     ),
@@ -114,7 +132,7 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
             child: Container(
               width: double.infinity,
               decoration: const BoxDecoration(
-                color: Colors.black,
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(32),
                   topRight: Radius.circular(32),
@@ -140,31 +158,46 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
                   final dishes = snapshot.data!;
 
                   final filteredDishes = dishes.where((dish) {
-                    final category = dish['categories'];
+                    final subCategory = dish['sub_categories'];
+                    if (subCategory == null) return false;
+
+                    final category = subCategory['categories'];
                     if (category == null) return false;
-                    return category['category_name'] == widget.categoryModel.category_name;
+
+                    final categoryName = category['category_name'];
+                    if (categoryName != widget.categoryModel.category_name) return false;
+
+                    // Nếu có chọn subCategory cụ thể thì lọc theo
+                    if (_selectedSubCategory != null) {
+                      return subCategory['sub_category_name'] == _selectedSubCategory;
+                    }
+
+                    return true; // Nếu chọn "Tất cả"
                   }).toList();
 
+
+
+
+
                   if (filteredDishes.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'Chưa có món ăn trong danh mục này\nVui lòng quay lại sau.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
+                    return Text(
+                      'Chưa có món ăn trong danh mục này\nVui lòng quay lại sau.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
                     );
                   }
 
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filteredDishes.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 12.0, bottom: 12),
-                        child: DishItemWidget(dishData: filteredDishes[index]),
-                      );
-                    },
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 15),
+                    child: ListView.builder(
+                      itemCount: filteredDishes.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 12.0, bottom: 12),
+                          child: DishItemWidget(dishData: filteredDishes[index]),
+                        );
+                      },
+                    ),
                   );
                 },
               ),
@@ -175,22 +208,22 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
     );
   }
 
-  Widget _categoryButton(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: OutlinedButton(
-        onPressed: () {
-          // TODO: Bổ sung chuyển danh mục nếu muốn
-        },
-        style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.black,
-          side: const BorderSide(color: Colors.white),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
-        child: Text(title, style: const TextStyle(color: Colors.white)),
-      ),
-    );
-  }
+  // Widget _categoryButton(String title) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(right: 8),
+  //     child: OutlinedButton(
+  //       onPressed: () {
+  //         // TODO: Bổ sung chuyển danh mục nếu muốn
+  //       },
+  //       style: OutlinedButton.styleFrom(
+  //         backgroundColor: Colors.black,
+  //         side: const BorderSide(color: Colors.white),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(20),
+  //         ),
+  //       ),
+  //       child: Text(title, style: const TextStyle(color: Colors.white)),
+  //     ),
+  //   );
+  // }
 }
