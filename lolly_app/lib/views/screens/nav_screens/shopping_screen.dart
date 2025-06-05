@@ -14,22 +14,19 @@ class ShoppingScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 45),
-              child: Text(
-                "Danh sách đi chợ",
-                style: const TextStyle(
-                  color: Color(0xFF007400),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Image.asset('assets/logo.png', height: 70, width: 70),
-          ],
+
+        title: Text(
+          "Danh sách đi chợ",
+          style: const TextStyle(
+            color: Color(0xFF007400),
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        centerTitle: true,
+
+        actions: [
+          Image.asset('assets/logo.png', height: 70, width: 70),
+        ],
         elevation: 0,
       ),
       body: Column(

@@ -74,6 +74,7 @@ class _PopularDishesWidgetState extends State<PopularDishesWidget> {
                 padding: const EdgeInsets.only(right: 12.0, bottom: 12),
                 child: DishItemWidget(dishData: dishData),
               );
+
             },
             childCount: dishes.length,
           ),
