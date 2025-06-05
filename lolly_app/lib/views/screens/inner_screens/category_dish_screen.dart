@@ -71,21 +71,22 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              widget.categoryModel.category_name,
-              style: const TextStyle(
-                color: Color(0xFF007400),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Image.asset('assets/logo.png', height: 70, width: 70),
-          ],
+
+        title: Text(
+          widget.categoryModel.category_name,
+          style: const TextStyle(
+            color: Color(0xFF007400),
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        centerTitle: true,
+
+        actions: [
+          Image.asset('assets/logo.png', height: 70, width: 70),
+        ],
         elevation: 0,
       ),
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
