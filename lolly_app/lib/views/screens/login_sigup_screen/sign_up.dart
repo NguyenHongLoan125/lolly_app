@@ -17,7 +17,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _handleSignUp() {
     if (_passwordController.text != _confirmPasswordController.text) {
-      print("Mật khẩu không khớp!");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Mật khẩu và mật khẩu không khớp!"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
       return ;
     }
     AuthenticationController.signUp(
