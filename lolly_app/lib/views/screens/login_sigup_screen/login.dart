@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   title: 'ĐĂNG NHẬP TÀI KHOẢN',
                   description: 'Chào mừng bạn!',
                   isRegister: false,
-                onButton: (){
+                  onButton: (){
                   AuthenticationController.logIn(
                     context: context,
                     email: emailController.text,

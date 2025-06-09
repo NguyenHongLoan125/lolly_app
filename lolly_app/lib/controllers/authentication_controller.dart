@@ -41,7 +41,6 @@ class AuthenticationController{
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Đăng ký thành công!")),
         );
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -73,7 +72,11 @@ class AuthenticationController{
         print("Đăng nhập thành công!");
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Đăng nhập thành công!")),
+          SnackBar(
+              content: Text("Đăng nhập thành công!"),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 5)
+          ),
         );
 
         // Chuyển hướng người dùng sau đăng nhập (VD: vào màn hình chính)
@@ -84,14 +87,22 @@ class AuthenticationController{
       } else {
         print("Lỗi: Không thể đăng nhập.");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Đăng nhập thất bại!")),
+          SnackBar(
+              content: Text("Đăng nhập thất bại!"),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 5)
+          ),
         );
       }
 
     } catch (e) {
       print("Lỗi đăng nhập: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lỗi: Kiểm tra email và mật khẩu.")),
+        SnackBar(
+            content: Text("Lỗi: Kiểm tra email và mật khẩu."),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5)
+        ),
       );
     }
   }
