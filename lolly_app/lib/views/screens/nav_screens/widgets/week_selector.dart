@@ -14,12 +14,20 @@ class _WeekSelectorState extends State<WeekSelector> {
   int selectedIndex = 0;
   late DateTime monday;
 
+
   @override
   void initState() {
     super.initState();
     final now = DateTime.now();
     monday = now.subtract(Duration(days: now.weekday - 1));
+
+    // Tính index của ngày hôm nay trong tuần (0 = Mon, 6 = Sun)
+    selectedIndex = now.weekday - 1;
+
+    // Gọi callback với ngày hôm nay nếu cần
+    widget.onDateSelected?.call(weekDates[selectedIndex]);
   }
+
 
   List<DateTime> get weekDates =>
       List.generate(7, (index) => monday.add(Duration(days: index)));

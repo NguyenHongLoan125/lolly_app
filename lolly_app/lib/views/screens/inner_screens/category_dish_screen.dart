@@ -45,14 +45,14 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
     return categoryMap;
   }
 
-  Future<List<String>> fetchSubCategoriesByCategoryName(String categoryName) async {
-    final List<Map<String, dynamic>> data = await Supabase.instance.client
-        .from('sub_categories')
-        .select('sub_category_name, categories!inner(category_name)')
-        .eq('categories.category_name', categoryName);
-
-    return data.map<String>((e) => e['sub_category_name'] as String).toList();
-  }
+  // Future<List<String>> fetchSubCategoriesByCategoryName(String categoryName) async {
+  //   final List<Map<String, dynamic>> data = await Supabase.instance.client
+  //       .from('sub_categories')
+  //       .select('sub_category_name, categories!inner(category_name)')
+  //       .eq('categories.category_name', categoryName);
+  //
+  //   return data.map<String>((e) => e['sub_category_name'] as String).toList();
+  // }
 
   @override
   Widget build(BuildContext context) {
