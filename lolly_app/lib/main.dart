@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lolly_app/controllers/category_controller.dart';
+import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
+import 'package:lolly_app/views/screens/login_sigup_screen/sign_up.dart';
 import 'package:lolly_app/views/screens/main_screens.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
@@ -42,11 +44,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       debugShowCheckedModeBanner: false,
-      home: MainScreen(),
-      initialBinding: BindingsBuilder(() {
-        Get.put<CategoryController>(CategoryController());
-
-      }),
+      //home: SignUpScreen(),
+      home: LoginScreen(),
+      // initialBinding: BindingsBuilder(() {
+      //   Get.put<CategoryController>(CategoryController());
+      //
+      // }),
 
     );
   }
