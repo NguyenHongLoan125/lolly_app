@@ -1,35 +1,74 @@
-import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
-import 'package:lolly_app/views/screens/login_sigup_screen/sign_up.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../views/screens/login_sigup_screen/login.dart';
+import '../views/screens/login_sigup_screen/sign_up.dart';
 import '../views/screens/main_screens.dart';
 
+class AuthenticationController {
+  static final supabase = Supabase.instance.client;
+  // static Timer? _emailCheckTimer;
+  //
+  // static void _waitForEmailConfirmation(BuildContext context) {
+  //   showEmailConfirmationDialog(context); // hiển thị dialog chờ
+  //
+  //   _emailCheckTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+  //     try {
+  //       // Gọi refresh để lấy thông tin mới nhất nếu user đăng nhập
+  //       await supabase.auth.refreshSession();
+  //       final userResponse = await supabase.auth.getUser();
+  //       final user = userResponse.user;
+  //
+  //       print("✅ Kiểm tra emailConfirmedAt: ${user?.emailConfirmedAt}");
+  //
+  //       if (user != null && user.emailConfirmedAt != null) {
+  //         print("✅ Email đã được xác nhận!");
+  //
+  //         timer.cancel();
+  //         _emailCheckTimer = null;
+  //
+  //         if (context.mounted) {
+  //           Navigator.of(context, rootNavigator: true).pop(); // đóng dialog
+  //         }
+  //
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           const SnackBar(
+  //             content: Text("Email đã được xác nhận!"),
+  //             backgroundColor: Colors.green,
+  //           ),
+  //         );
+  //
+  //         Navigator.pushReplacement(
+  //           context,
+  //           MaterialPageRoute(builder: (_) => const LoginScreen()),
+  //         );
+  //       }
+  //     } catch (e) {
+  //       print("❌ Lỗi khi kiểm tra xác nhận email: $e");
+  //     }
+  //   });
+  // }
 
-class AuthenticationController{
-  static final supabase= Supabase.instance.client;
 
   static Future<void> signUp({
     required BuildContext context,
     required String email,
     required String password,
     required String username,
-
-  })
-  async {
+  }) async {
     try {
       final response = await supabase.auth.signUp(
-          email: email,
-          password: password,
-        // data: {
-        //   'firstname': username,
-        // },
+        email: email,
+        password: password,
       );
 
-      if (response.user != null) {
-        final userId = response.user!.id;
+      final user = response.user;
+      final session = response.session;
 
-        // Thêm user vào bảng `users`
+      if (user != null) {
+        final userId = user.id;
+
+        // Thêm vào bảng users (nếu cần)
         await supabase.from('users').insert({
           'user_id': userId,
           'firstname': username,
@@ -37,24 +76,18 @@ class AuthenticationController{
           'created_at': DateTime.now().toIso8601String(),
         });
 
-        print("Đăng ký và lưu dữ liệu thành công!");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Đăng ký thành công!")),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          const SnackBar(content: Text("Đăng ký thành công! Vui lòng xác nhận email.")),
         );
 
+        // _waitForEmailConfirmation(context);
       }
-    }
-    catch (e) {
-      print("Lỗi đăng ký: $e");
+    } catch (e) {
+      print("❌ Lỗi đăng ký: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Đăng ký thất bại! Vui lòng kiểm tra lại.")),
+        const SnackBar(content: Text("Đăng ký thất bại. Vui lòng thử lại.")),
       );
     }
-
   }
 
   static Future<void> logIn({
@@ -69,39 +102,31 @@ class AuthenticationController{
       );
 
       if (response.session != null) {
-        print("Đăng nhập thành công!");
-
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text("Đăng nhập thành công!"),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 5)
+          const SnackBar(
+            content: Text("Đăng nhập thành công!"),
+            backgroundColor: Colors.green,
           ),
         );
 
-        // Chuyển hướng người dùng sau đăng nhập (VD: vào màn hình chính)
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => MainScreen()));
-
+          context,
+          MaterialPageRoute(builder: (_) => MainScreen()),
+        );
       } else {
-        print("Lỗi: Không thể đăng nhập.");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text("Đăng nhập thất bại!"),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 5)
+          const SnackBar(
+            content: Text("Đăng nhập thất bại!"),
+            backgroundColor: Colors.red,
           ),
         );
       }
-
     } catch (e) {
-      print("Lỗi đăng nhập: $e");
+      print("❌ Lỗi đăng nhập: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text("Lỗi: Kiểm tra email và mật khẩu."),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 5)
+        const SnackBar(
+          content: Text("Lỗi đăng nhập. Vui lòng thử lại."),
+          backgroundColor: Colors.red,
         ),
       );
     }
