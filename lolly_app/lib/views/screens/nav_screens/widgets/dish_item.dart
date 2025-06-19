@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lolly_app/views/screens/nav_screens/add_dish_screen.dart';
-import 'package:lolly_app/views/screens/nav_screens/widgets/add_to_menu.dart';
+import 'package:lolly_app/controllers/menu_controller.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DishItemWidget extends StatelessWidget {
   final Map<String, dynamic> dishData;
@@ -110,19 +110,19 @@ class DishItemWidget extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: () {
                         final dishId = dishData['id'] as String;
-                        addToMenu(context: context, dishId: dishId);
-                        // final userId = Supabase.instance.client.auth.currentUser?.id;
-                        // if (userId != null) {
-                        //   addToMenu(
-                        //     context: context,
-                        //     dishId: dishId,
-                        //     userId: userId,
-                        //   );
-                        // } else {
-                        //   ScaffoldMessenger.of(context).showSnackBar(
-                        //     const SnackBar(content: Text(' Không thể xác định người dùng.')),
-                        //   );
-                        // }
+                        final userId = Supabase.instance.client.auth.currentUser?.id;
+
+                        if (userId != null) {
+                          addToMenu(
+                            context: context,
+                            dishId: dishId,
+                            userId: userId,
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text(' Không thể xác định người dùng.')),
+                          );
+                        }
                       },
                       icon: const Icon(Icons.add, size: 16),
                       label: const Text("Thêm vào thực đơn"),

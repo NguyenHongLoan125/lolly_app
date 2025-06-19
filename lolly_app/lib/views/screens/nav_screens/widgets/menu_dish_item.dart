@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lolly_app/views/screens/nav_screens/widgets/add_to_menu.dart';
+import 'package:lolly_app/controllers/menu_controller.dart';
 
 class MenuDishItemWidget extends StatelessWidget {
   final Map<String, dynamic> dishData;
@@ -118,7 +118,6 @@ class MenuDishItemWidget extends StatelessWidget {
                       tooltip: "Xóa",
                     ),
                   )
-
                 ],
               ),
             ),
