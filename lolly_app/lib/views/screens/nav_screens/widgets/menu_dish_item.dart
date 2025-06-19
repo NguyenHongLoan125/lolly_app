@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lolly_app/views/screens/nav_screens/add_dish_screen.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/add_to_menu.dart';
 
 class MenuDishItemWidget extends StatelessWidget {

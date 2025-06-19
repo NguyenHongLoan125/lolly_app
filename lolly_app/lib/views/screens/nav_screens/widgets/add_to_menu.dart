@@ -45,11 +45,11 @@ Future<void> deleteToMenu({
 
     if (response == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã thêm vào thực đơn!')),
+        const SnackBar(content: Text('Đã xóa khỏi thực đơn!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lỗi khi thêm vào thực đơn.')),
+        const SnackBar(content: Text('Lỗi khi xóa khỏi thực đơn.')),
       );
     }
   } catch (error) {

@@ -116,4 +116,3 @@ final GoRouter router = GoRouter(
       );
     },
 );
-
