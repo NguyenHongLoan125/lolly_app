@@ -2,6 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:lolly_app/controllers/authentication_controller.dart';
 import 'package:lolly_app/models/auth_model.dart';
 import 'package:lolly_app/views/screens/login_sigup_screen/auth_widgets.dart';
+
+// void showEmailConfirmationDialog(BuildContext context) {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//           title: Text("Đang chờ xác nhận Email"),
+//           content: Column(
+//           mainAxisSize: MainAxisSize.min,
+//             children: [
+//                 Text("Hệ thống đang chờ bạn xác nhận email."),
+//                 SizedBox(height: 16),
+//                 CircularProgressIndicator(), // Vòng quay hiển thị trạng thái chờ
+//             ],
+//           )
+//       );
+//     },
+//   );
+// }
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -28,12 +47,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
     AuthenticationController.signUp(
       context: context,
-      email: _emailController.text,
-      password: _passwordController.text,
-      username: _usernameController.text,
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+      username: _usernameController.text.trim(),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +67,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   passWordController: _passwordController,
                   confirmPasswordController: _confirmPasswordController,
                   usernameController: _usernameController,
-                  
+                  isRememberMe: null,
+                  onRememberChanged: null,
                   btnText: 'Đăng ký',
               )
           ),

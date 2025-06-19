@@ -3,6 +3,8 @@ import 'package:lolly_app/controllers/authentication_controller.dart';
 import 'package:lolly_app/models/auth_model.dart';
 import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
 import 'package:lolly_app/views/screens/login_sigup_screen/sign_up.dart';
+
+import '../../../controllers/auth_storage.dart';
  // Import file chứa logic kiểm tra
 
 class AuthWidgets extends StatefulWidget {
@@ -151,6 +153,44 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                         obscureText: _obscurePassword,
                         validator: (value) => validateRequired(value, "Mật khẩu"),
                       ),
+                      const SizedBox(height:10),
+
+                      //nút remember me
+                      if(!widget.authModel.isRegister)
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: widget.authModel.isRememberMe,
+                              onChanged: widget.authModel.onRememberChanged,
+                              side: const BorderSide(
+                                  color: Color(0xFF007400),
+                                  width: 1.5
+                              ),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)
+                              ),
+                              activeColor: Colors.green,
+                              checkColor: Colors.white,
+                              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                                if (states.contains(MaterialState.selected)) {
+                                  return  Color.fromRGBO(204, 255, 152, 1); // màu khi được chọn
+                                }
+                                return Colors.grey.shade300; // màu khi chưa chọn
+                              }),
+
+                            ),
+                            const SizedBox(width: 5,),
+                            const Text(
+                              'Ghi nhớ đăng nhập',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+
+                          ],
+                        ),
 
 
                       const SizedBox(height: 20),
@@ -179,8 +219,10 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                           obscureText: _obscureConfirm,
                           validator: (value) => validateRequired(value, "Xác nhận mật khẩu"),
                         ),
-            
-                      const SizedBox(height: 50),
+
+
+
+                      const SizedBox(height: 30),
             
                       // Nút xác nhận
                       Container(
@@ -192,7 +234,7 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                             backgroundColor: Color.fromRGBO(0, 116, 0, 1),
                             foregroundColor: Colors.white,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               if (widget.authModel.isRegister) {
                                 widget.authModel.onButton?.call();
@@ -202,6 +244,12 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                                   context: context,
                                   email: widget.authModel.emailController.text,
                                   password: widget.authModel.passWordController.text,
+                                );
+
+                                await AuthStorage.saveCredentials(
+                                  widget.authModel.emailController.text,
+                                  widget.authModel.passWordController.text,
+                                  widget.authModel.isRememberMe ?? false
                                 );
                               }
             
@@ -225,7 +273,7 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                           children: [
                             Text('Bạn đã có tài khoản?',
                               style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 15,
                                   color: Colors.white
                               ),
                             ),
@@ -240,7 +288,7 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                                 },
                                 child: Text('Đăng nhập',
                                   style: TextStyle(
-                                      fontSize: 20,
+                                      fontSize: 15,
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold
                                   ),
@@ -262,7 +310,7 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                                 },
                                 child: Text('Quên mật khẩu?',
                                   style: TextStyle(
-                                      fontSize: 20,
+                                      fontSize: 15,
                                       color: Colors.white
                                   ),
                                 )
@@ -273,7 +321,7 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                               children: [
                                 Text('Chưa có tài khoản?',
                                   style: TextStyle(
-                                      fontSize: 20,
+                                      fontSize: 15,
                                       color: Colors.white
                                   ),
                                 ),
@@ -288,7 +336,7 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                                     },
                                     child: Text ('Đăng ký ngay',
                                       style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 15,
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold
                                       ),

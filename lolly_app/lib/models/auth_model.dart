@@ -6,6 +6,8 @@ class AuthModel {
   final bool isRegister;
   final String btnText;
   final VoidCallback onButton;
+  final bool ? isRememberMe;
+  final Function(bool?)? onRememberChanged;
 
   final TextEditingController emailController;
   final TextEditingController passWordController;
@@ -22,6 +24,10 @@ class AuthModel {
     required this.passWordController,
     this.confirmPasswordController,
     this.usernameController,
+    required this.isRememberMe,
+    required this.onRememberChanged,
+
   });
 }
+
 

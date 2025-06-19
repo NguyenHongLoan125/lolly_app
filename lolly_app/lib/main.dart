@@ -44,12 +44,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       debugShowCheckedModeBanner: false,
-      //home: SignUpScreen(),
+
       home: LoginScreen(),
-      // initialBinding: BindingsBuilder(() {
-      //   Get.put<CategoryController>(CategoryController());
-      //
-      // }),
+      initialBinding: BindingsBuilder(() {
+        Get.put<CategoryController>(CategoryController());
+
+      }),
 
     );
   }
