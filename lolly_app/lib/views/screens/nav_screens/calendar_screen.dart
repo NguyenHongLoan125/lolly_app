@@ -10,13 +10,16 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  late final Stream<List<Map<String, dynamic>>> _dishesStream;
+  late final Stream<List<Map<String, dynamic>>>? _dishesStream;
+
+  late final DishController _dishController;
 
   @override
   void initState() {
     super.initState();
-    final DishController _dishController = DishController();
-    _dishesStream = _dishController.getPopularDishes();
+    _dishController = DishController();
+    final DateTime today = DateTime.now();
+    _dishesStream = _dishController.getDishesFromMenusByDate(today);
   }
   @override
   Widget build(BuildContext context) {
@@ -63,7 +66,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: StreamBuilder<List<Map<String, dynamic>>>(
-                  stream: _dishesStream,
+                  stream: _dishesStream ?? const Stream.empty(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Center(
@@ -91,6 +94,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       itemCount: dishes.length,
                       itemBuilder: (context, index) {
                         final dishData = dishes[index];
+                        print(dishData);
                         return Padding(
                           padding: const EdgeInsets.only(right: 12.0, bottom: 12),
                           child: MenuDishItemWidget(dishData: dishData),

@@ -25,32 +25,36 @@ Future<void> addToMenu({
     );
   }
 }
-
 Future<void> deleteToMenu({
   required BuildContext context,
   required String dishId,
-  // required String userId,
-
+  required String userId,
+  required DateTime createdAt,
 }) async {
   try {
     final response = await Supabase.instance.client
         .from('menus')
         .delete()
-        .eq('dishId', dishId);
+        .eq('dishId', dishId)
+        .eq('userId', userId)
+        .eq('created_at', createdAt.toIso8601String()) // phải đúng định dạng ISO!
+        .select();
 
-    if (response == null) {
+    print('Delete response: $response');
+
+    if (response != null && response.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đã xóa khỏi thực đơn!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lỗi khi xóa khỏi thực đơn.')),
+        const SnackBar(content: Text('Không tìm thấy món ăn để xóa.')),
       );
     }
   } catch (error) {
+    print('Lỗi khi xóa: $error');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Lỗi: $error')),
     );
   }
 }
-
