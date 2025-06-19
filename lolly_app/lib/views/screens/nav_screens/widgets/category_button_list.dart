@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../../models/catygory_models.dart';
+
+
 class SubCategoryButtons extends StatefulWidget {
   final String categoryName;
   final void Function(String)? onSubCategorySelected;
   final String? selectedSubCategory; // thêm cái này
+  final CategoryModel categoryModel;
 
   const SubCategoryButtons({
     super.key,
     required this.categoryName,
+    required this.categoryModel, // thêm dòng này
     this.onSubCategorySelected,
     this.selectedSubCategory,
   });
+
 
   @override
   State<SubCategoryButtons> createState() => _SubCategoryButtonsState();
@@ -63,11 +71,25 @@ class _SubCategoryButtonsState extends State<SubCategoryButtons> {
               padding: const EdgeInsets.only(right: 8),
               child: OutlinedButton(
                 onPressed: () {
+                  final encodedCategory = Uri.encodeComponent(widget.categoryName);
+                  final encodedSub = Uri.encodeComponent(subCat);
+
                   setState(() {
                     selected = subCat == "Tất cả" ? null : subCat;
                   });
-                  widget.onSubCategorySelected?.call(selected ?? "Tất cả");
+                  if (subCat == "Tất cả") {
+                    context.push('/home/$encodedCategory', extra: widget.categoryModel);
+                  } else {
+                    context.go('/home/$encodedCategory/$encodedSub', extra: {
+                      'categoryModel': widget.categoryModel,
+                      'selectedSubCategory': subCat,
+                    });              }
+
+                  print('Encoded Category: $encodedCategory');
+                  print('Encoded Sub: $encodedSub');
+
                 },
+
                 style: OutlinedButton.styleFrom(
                   backgroundColor: isSelected ? Color(0xFF007400) : const Color.fromARGB(100, 0, 116, 0),
                   side: const BorderSide(color: Colors.white),

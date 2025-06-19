@@ -1,10 +1,6 @@
-import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
-import 'package:lolly_app/views/screens/login_sigup_screen/sign_up.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
-
-import '../views/screens/main_screens.dart';
-
 
 class AuthenticationController{
   static final supabase= Supabase.instance.client;
@@ -42,11 +38,11 @@ class AuthenticationController{
           SnackBar(content: Text("Đăng ký thành công!")),
         );
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => const LoginScreen()),
+        // );
+        context.go('/login');
       }
     }
     catch (e) {
@@ -77,9 +73,10 @@ class AuthenticationController{
         );
 
         // Chuyển hướng người dùng sau đăng nhập (VD: vào màn hình chính)
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => MainScreen()));
+        // Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(builder: (context) => MainScreen()));
+        context.go('/home');
 
       } else {
         print("Lỗi: Không thể đăng nhập.");
