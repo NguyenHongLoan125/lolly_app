@@ -45,20 +45,20 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
     return categoryMap;
   }
 
-  Future<List<String>> fetchSubCategoriesByCategoryName(String categoryName) async {
-    final List<Map<String, dynamic>> data = await Supabase.instance.client
-        .from('sub_categories')
-        .select('sub_category_name, categories!inner(category_name)')
-        .eq('categories.category_name', categoryName);
-
-    return data.map<String>((e) => e['sub_category_name'] as String).toList();
-  }
+  // Future<List<String>> fetchSubCategoriesByCategoryName(String categoryName) async {
+  //   final List<Map<String, dynamic>> data = await Supabase.instance.client
+  //       .from('sub_categories')
+  //       .select('sub_category_name, categories!inner(category_name)')
+  //       .eq('categories.category_name', categoryName);
+  //
+  //   return data.map<String>((e) => e['sub_category_name'] as String).toList();
+  // }
 
   @override
   Widget build(BuildContext context) {
     final Stream<List<Map<String, dynamic>>> dishStream = Supabase.instance.client
         .from('dishes')
-        .select('*, sub_categories(*, categories(id, category_name))')
+        .select('*, dish_sub_categories(categories, sub_categories(*, categories(id, category_name)))')
         .order('created_at', ascending: false)
         .asStream();
 
@@ -71,21 +71,22 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              widget.categoryModel.category_name,
-              style: const TextStyle(
-                color: Color(0xFF007400),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Image.asset('assets/logo.png', height: 70, width: 70),
-          ],
+
+        title: Text(
+          widget.categoryModel.category_name,
+          style: const TextStyle(
+            color: Color(0xFF007400),
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        centerTitle: true,
+
+        actions: [
+          Image.asset('assets/logo.png', height: 70, width: 70),
+        ],
         elevation: 0,
       ),
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -158,25 +159,32 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
                   final dishes = snapshot.data!;
 
                   final filteredDishes = dishes.where((dish) {
-                    final subCategory = dish['sub_categories'];
-                    if (subCategory == null) return false;
+                    // Lấy danh sách sub_categories từ dish_sub_categories
+                    final dishSubCategories = dish['dish_sub_categories'];
+                    if (dishSubCategories == null || dishSubCategories.isEmpty) return false;
 
-                    final category = subCategory['categories'];
-                    if (category == null) return false;
+                    // Duyệt qua từng sub_category
+                    for (final dishSubCategory in dishSubCategories) {
+                      final subCategory = dishSubCategory['sub_categories'];
+                      if (subCategory == null) continue;
 
-                    final categoryName = category['category_name'];
-                    if (categoryName != widget.categoryModel.category_name) return false;
+                      final category = subCategory['categories'];
+                      if (category == null) continue;
 
-                    // Nếu có chọn subCategory cụ thể thì lọc theo
-                    if (_selectedSubCategory != null) {
-                      return subCategory['sub_category_name'] == _selectedSubCategory;
+                      final categoryName = category['category_name'];
+                      if (categoryName == widget.categoryModel.category_name) {
+                        // Nếu có chọn subCategory cụ thể thì kiểm tra
+                        if (_selectedSubCategory != null) {
+                          if (subCategory['sub_category_name'] == _selectedSubCategory) {
+                            return true;
+                          }
+                        } else {
+                          return true; // Nếu chọn "Tất cả"
+                        }
+                      }
                     }
-
-                    return true; // Nếu chọn "Tất cả"
+                    return false; // Không thuộc danh mục nào
                   }).toList();
-
-
-
 
 
                   if (filteredDishes.isEmpty) {
@@ -207,23 +215,4 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
       ),
     );
   }
-
-  // Widget _categoryButton(String title) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(right: 8),
-  //     child: OutlinedButton(
-  //       onPressed: () {
-  //         // TODO: Bổ sung chuyển danh mục nếu muốn
-  //       },
-  //       style: OutlinedButton.styleFrom(
-  //         backgroundColor: Colors.black,
-  //         side: const BorderSide(color: Colors.white),
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(20),
-  //         ),
-  //       ),
-  //       child: Text(title, style: const TextStyle(color: Colors.white)),
-  //     ),
-  //   );
-  // }
 }

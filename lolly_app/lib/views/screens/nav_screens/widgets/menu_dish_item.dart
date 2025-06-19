@@ -3,10 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lolly_app/views/screens/nav_screens/add_dish_screen.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/add_to_menu.dart';
 
-class DishItemWidget extends StatelessWidget {
+class MenuDishItemWidget extends StatelessWidget {
   final Map<String, dynamic> dishData;
 
-  const DishItemWidget({super.key, required this.dishData});
+  const MenuDishItemWidget({super.key, required this.dishData});
 
   @override
   Widget build(BuildContext context) {
@@ -93,51 +93,33 @@ class DishItemWidget extends StatelessWidget {
                   const SizedBox(height: 4),
 
                   // Ingredient Description
-                  Text(
-                    "Nguyên liệu: ${dishData['ingredient']}",
-                    style: GoogleFonts.lato(
-                      fontSize: 13,
-                      color: const Color(0xFF7F8E9D),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Nguyên liệu: ${dishData['ingredient']}",
+                      style: GoogleFonts.lato(
+                        fontSize: 13,
+                        color: const Color(0xFF7F8E9D),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
 
                   const SizedBox(height: 10),
 
                   Align(
-                    alignment: Alignment.centerLeft,
-                    child: ElevatedButton.icon(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
                       onPressed: () {
                         final dishId = dishData['id'] as String;
-                        addToMenu(context: context, dishId: dishId);
-                        // final userId = Supabase.instance.client.auth.currentUser?.id;
-                        // if (userId != null) {
-                        //   addToMenu(
-                        //     context: context,
-                        //     dishId: dishId,
-                        //     userId: userId,
-                        //   );
-                        // } else {
-                        //   ScaffoldMessenger.of(context).showSnackBar(
-                        //     const SnackBar(content: Text(' Không thể xác định người dùng.')),
-                        //   );
-                        // }
+                        deleteToMenu(context: context, dishId: dishId);
                       },
-                      icon: const Icon(Icons.add, size: 16),
-                      label: const Text("Thêm vào thực đơn"),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(28),
-                        backgroundColor: const Color(0xFF4CAF50),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        textStyle: GoogleFonts.lato(fontSize: 15),
-                      ),
+                      icon: const Icon(Icons.delete_rounded, size: 28,),
+                      tooltip: "Xóa",
                     ),
-                  ),
+                  )
+
                 ],
               ),
             ),
