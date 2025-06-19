@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DishController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
-
   Stream<List<Map<String, dynamic>>> getPopularDishes() {
     return _supabase
         .from('dishes')
@@ -35,7 +34,35 @@ class DishController extends GetxController {
       print('>>> STACK TRACE: $stackTrace');
     });
   }
+  Stream<List<Map<String, dynamic>>> getDishesFromMenusByDate(DateTime date) {
+    final String formattedDate = date.toIso8601String().split('T').first; // yyyy-MM-dd
 
+    return _supabase
+        .from('menus')
+        .select('''
+        id,
+        created_at,
+        userId,
+        dishId,
+        dishes (
+          *,
+          dish_sub_categories (
+            categories,
+            sub_categories (
+              *,
+              categories (
+                id,
+                category_name
+              )
+            )
+          )
+        )
+      ''')
+        .gte('created_at', '${formattedDate}T00:00:00')
+        .lt('created_at', '${formattedDate}T23:59:59')
+        .order('created_at', ascending: false)
+        .asStream();
+  }
   Future<List<String>> fetchSubCategories(String categoryName) async {
     final List<Map<String, dynamic>> data = await _supabase
         .from('sub_categories')
