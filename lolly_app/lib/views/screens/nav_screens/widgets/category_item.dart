@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lolly_app/controllers/category_controller.dart';
 import 'package:lolly_app/views/screens/inner_screens/category_dish_screen.dart';
@@ -35,10 +36,12 @@ class _CategoryItemState extends State<CategoryItem> {
             final category = _categoryController.categories[index];
             return InkWell(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context){
-                      return CategoryDishScreen(categoryModel: _categoryController.categories[index],);
-                    }));
+                // Navigator.push(context,
+                //     MaterialPageRoute(builder: (context){
+                //       return CategoryDishScreen(categoryModel: _categoryController.categories[index],);
+                //     }));
+                final categoryName = category.category_name;
+                context.go('/home/$categoryName', extra: category);
               },
               child: Column(
                 children: [

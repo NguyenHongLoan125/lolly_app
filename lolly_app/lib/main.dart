@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:lolly_app/controllers/category_controller.dart';
-import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
-import 'package:lolly_app/views/screens/login_sigup_screen/sign_up.dart';
-import 'package:lolly_app/views/screens/main_screens.dart';
+import 'package:lolly_app/router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
-    url: 'https://fajmrqekivpsntrdyklx.supabase.co',         // Dán Project URL của bạn vào đây
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZham1ycWVraXZwc250cmR5a2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MjQxODUsImV4cCI6MjA2NDIwMDE4NX0.qP7fRO9HbRROLF-Rd0nJL9utUbC_PyRLn-VqFHbYcqU', // Dán anon public key của bạn vào đây
+    url: 'https://fajmrqekivpsntrdyklx.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZham1ycWVraXZwc250cmR5a2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MjQxODUsImV4cCI6MjA2NDIwMDE4NX0.qP7fRO9HbRROLF-Rd0nJL9utUbC_PyRLn-VqFHbYcqU',
   );
-  WidgetsFlutterBinding.ensureInitialized(); // bắt buộc cho async trong main
-
+  Get.put(CategoryController());
+  usePathUrlStrategy();
   runApp(const MyApp());
 }
 
@@ -23,8 +22,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'Flutter Demo',
+    return MaterialApp.router(
+      title: 'Lolly',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -42,15 +41,20 @@ class MyApp extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        brightness: Brightness.light,
       ),
       debugShowCheckedModeBanner: false,
 
-      home: LoginScreen(),
-      initialBinding: BindingsBuilder(() {
-        Get.put<CategoryController>(CategoryController());
+      //home: SignUpScreen(),
+      // initialBinding: BindingsBuilder(() {
+      //   Get.put<CategoryController>(CategoryController());
+      //
+      // }),
+      routerConfig: router,
 
-      }),
 
     );
   }
 }
+

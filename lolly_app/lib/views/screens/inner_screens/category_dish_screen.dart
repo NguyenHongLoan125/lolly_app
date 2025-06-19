@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lolly_app/models/catygory_models.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/category_button_list.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/dish_item.dart';
@@ -6,8 +7,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CategoryDishScreen extends StatefulWidget {
   final CategoryModel categoryModel;
+  final String? subCategoryName;
 
-  const CategoryDishScreen({super.key, required this.categoryModel});
+  const CategoryDishScreen({
+    super.key,
+    required this.categoryModel,
+    this.subCategoryName,
+  });
 
   @override
   State<CategoryDishScreen> createState() => _CategoryDishScreenState();
@@ -67,10 +73,10 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
       backgroundColor: const Color(0xFFECF5E3),
       appBar: AppBar(
         backgroundColor: const Color(0xFFECF5E3),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
-          onPressed: () => Navigator.pop(context),
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
+        //   onPressed: () => context.pop(),
+        // ),
 
         title: Text(
           widget.categoryModel.category_name,
@@ -105,14 +111,12 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
                         children: [
                           SubCategoryButtons(
                             categoryName: widget.categoryModel.category_name,
-                            selectedSubCategory: _selectedSubCategory,
+                            categoryModel: widget.categoryModel,
+                            selectedSubCategory: widget.subCategoryName, // <-- Sử dụng trực tiếp từ widget
                             onSubCategorySelected: (selectedSubCat) {
-                              setState(() {
-                                _selectedSubCategory = selectedSubCat == "Tất cả" ? null : selectedSubCat;
-                              });
+                              // Dùng setState nếu bạn cần highlight lại nút đã chọn
                             },
                           ),
-
                         ],
                       ),
                     ),
@@ -159,11 +163,9 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
                   final dishes = snapshot.data!;
 
                   final filteredDishes = dishes.where((dish) {
-                    // Lấy danh sách sub_categories từ dish_sub_categories
                     final dishSubCategories = dish['dish_sub_categories'];
                     if (dishSubCategories == null || dishSubCategories.isEmpty) return false;
 
-                    // Duyệt qua từng sub_category
                     for (final dishSubCategory in dishSubCategories) {
                       final subCategory = dishSubCategory['sub_categories'];
                       if (subCategory == null) continue;
@@ -172,19 +174,22 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
                       if (category == null) continue;
 
                       final categoryName = category['category_name'];
+                      final subCategoryName = subCategory['sub_category_name'];
+
                       if (categoryName == widget.categoryModel.category_name) {
-                        // Nếu có chọn subCategory cụ thể thì kiểm tra
-                        if (_selectedSubCategory != null) {
-                          if (subCategory['sub_category_name'] == _selectedSubCategory) {
+                        if (widget.subCategoryName != null) {
+                          if (subCategoryName == widget.subCategoryName) {
                             return true;
                           }
                         } else {
-                          return true; // Nếu chọn "Tất cả"
+                          return true; // Trường hợp "Tất cả"
                         }
                       }
                     }
-                    return false; // Không thuộc danh mục nào
+
+                    return false;
                   }).toList();
+
 
 
                   if (filteredDishes.isEmpty) {

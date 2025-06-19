@@ -27,4 +27,20 @@ class CategoryController extends GetxController {
       }).toList());
     });
   }
+
+  Future<CategoryModel?> fetchCategoryByName(String categoryName) async {
+    final response = await Supabase.instance.client
+        .from('categories')
+        .select('*')
+        .eq('category_name', categoryName)
+        .maybeSingle();
+
+    if (response == null) return null;
+
+    return CategoryModel(
+      category_name: response['category_name'],
+      category_image: response['category_image'],
+    );
+  }
+
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../views/screens/login_sigup_screen/login.dart';
 import '../views/screens/login_sigup_screen/sign_up.dart';
@@ -50,6 +51,7 @@ class AuthenticationController {
   // }
 
 
+
   static Future<void> signUp({
     required BuildContext context,
     required String email,
@@ -77,10 +79,16 @@ class AuthenticationController {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
+
           const SnackBar(content: Text("Đăng ký thành công! Vui lòng xác nhận email.")),
         );
 
-        // _waitForEmailConfirmation(context);
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => const LoginScreen()),
+        // );
+        context.go('/login');
+
       }
     } catch (e) {
       print("❌ Lỗi đăng ký: $e");
@@ -109,10 +117,12 @@ class AuthenticationController {
           ),
         );
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => MainScreen()),
-        );
+        // Chuyển hướng người dùng sau đăng nhập (VD: vào màn hình chính)
+        // Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(builder: (context) => MainScreen()));
+        context.go('/home');
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
