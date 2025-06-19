@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lolly_app/controllers/authentication_controller.dart';
 import 'package:lolly_app/models/auth_model.dart';
+import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
+import 'package:lolly_app/views/screens/login_sigup_screen/sign_up.dart';
+
+import '../../../controllers/auth_storage.dart';
  // Import file chứa logic kiểm tra
 
 class AuthWidgets extends StatefulWidget {
@@ -73,7 +77,7 @@ class _AuthWidgetsState extends State<AuthWidgets> {
         body: Container(
           width: double.infinity,
           height: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 30),
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 70),
           color: Color.fromRGBO(204, 255, 152, 1),
           child: SingleChildScrollView(
             child: Center(
@@ -149,6 +153,46 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                         obscureText: _obscurePassword,
                         validator: (value) => validateRequired(value, "Mật khẩu"),
                       ),
+                      const SizedBox(height:10),
+
+                      //nút remember me
+                      if(!widget.authModel.isRegister)
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: widget.authModel.isRememberMe,
+                              onChanged: widget.authModel.onRememberChanged,
+                              side: const BorderSide(
+                                  color: Color(0xFF007400),
+                                  width: 1.5
+                              ),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)
+                              ),
+                              activeColor: Colors.green,
+                              checkColor: Colors.white,
+                              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                                if (states.contains(MaterialState.selected)) {
+                                  return  Color.fromRGBO(204, 255, 152, 1); // màu khi được chọn
+                                }
+                                return Colors.grey.shade300; // màu khi chưa chọn
+                              }),
+
+                            ),
+                            const SizedBox(width: 5,),
+                            const Text(
+                              'Ghi nhớ đăng nhập',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+
+                          ],
+                        ),
+
+
                       const SizedBox(height: 20),
             
                       //  Xác nhận mật khẩu
@@ -175,8 +219,10 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                           obscureText: _obscureConfirm,
                           validator: (value) => validateRequired(value, "Xác nhận mật khẩu"),
                         ),
-            
-                      const SizedBox(height: 50),
+
+
+
+                      const SizedBox(height: 30),
             
                       // Nút xác nhận
                       Container(
@@ -188,15 +234,10 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                             backgroundColor: Color.fromRGBO(0, 116, 0, 1),
                             foregroundColor: Colors.white,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               if (widget.authModel.isRegister) {
-                                AuthenticationController.signUp(
-                                  context: context,
-                                  email: widget.authModel.emailController.text,
-                                  password: widget.authModel.passWordController.text,
-                                  username: widget.authModel.usernameController?.text ?? '',
-                                );
+                                widget.authModel.onButton?.call();
                               }
                               else {
                                 AuthenticationController.logIn(
@@ -204,10 +245,15 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                                   email: widget.authModel.emailController.text,
                                   password: widget.authModel.passWordController.text,
                                 );
+
+                                await AuthStorage.saveCredentials(
+                                  widget.authModel.emailController.text,
+                                  widget.authModel.passWordController.text,
+                                  widget.authModel.isRememberMe ?? false
+                                );
                               }
             
                             }
-            
                           },
                           child: Text(
                             widget.authModel.btnText,
@@ -218,6 +264,88 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 20,),
+                      //câu điều hướng giữa 2 trang
+                      if (widget.authModel.isRegister)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Bạn đã có tài khoản?',
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white
+                              ),
+                            ),
+                            const SizedBox(width: 7,),
+                            GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacement(context,
+                                      MaterialPageRoute(
+                                          builder: (context) => LoginScreen()
+                                      )
+                                  );
+                                },
+                                child: Text('Đăng nhập',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                ))
+                          ],
+                        )
+                      else
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                                onTap: (){
+                                  Navigator.pushReplacement(context,
+                                      MaterialPageRoute(
+                                          builder: (context)
+                                              => SignUpScreen()
+                                      )
+                                  );
+                                },
+                                child: Text('Quên mật khẩu?',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white
+                                  ),
+                                )
+                            ),
+                            const SizedBox( height: 15,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Chưa có tài khoản?',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white
+                                  ),
+                                ),
+                                const SizedBox(width: 7,),
+                                GestureDetector(
+                                    onTap: (){
+                                      Navigator.pushReplacement(context,
+                                          MaterialPageRoute(builder: (context)
+                                              => SignUpScreen()
+                                          )
+                                      );
+                                    },
+                                    child: Text ('Đăng ký ngay',
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                    )
+                                )
+                              ],
+                            )
+                          ],
+                        )
                     ],
                   ),
                 ),

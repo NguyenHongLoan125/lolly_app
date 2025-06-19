@@ -45,12 +45,14 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
       ),
       debugShowCheckedModeBanner: false,
+
       //home: SignUpScreen(),
       // initialBinding: BindingsBuilder(() {
       //   Get.put<CategoryController>(CategoryController());
       //
       // }),
       routerConfig: router,
+
 
     );
   }
