@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/menu_dish_item.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/week_selector.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
@@ -14,22 +15,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-
-    const String createdAtColumnInProductsTable = 'created_at';
-
-    _dishesStream = Supabase.instance.client
-        .from('dishes')
-        .select('*, dish_sub_categories(categories, sub_categories(sub_category_name))')
-        .order(createdAtColumnInProductsTable, ascending: false)
-        .asStream()
-        .handleError((error, stackTrace) {
-      print('>>> LỖI TRONG STREAM SUPABASE (PopularDishesWidget): $error');
-      print('>>> STACK TRACE STREAM: $stackTrace');
-    });
+    final DishController _dishController = DishController();
+    _dishesStream = _dishController.getPopularDishes();
   }
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: const Color(0xFFECF5E3),
       appBar: AppBar(

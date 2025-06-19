@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/dish_item.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -11,23 +12,14 @@ class PopularDishesWidget extends StatefulWidget {
 
 class _PopularDishesWidgetState extends State<PopularDishesWidget> {
   late final Stream<List<Map<String, dynamic>>> _dishesStream;
+  final DishController _dishController = DishController();
 
   @override
   void initState() {
     super.initState();
-
-    const String createdAtColumnInProductsTable = 'created_at';
-
-    _dishesStream = Supabase.instance.client
-        .from('dishes')
-        .select('*, dish_sub_categories(categories, sub_categories(sub_category_name))')
-        .order(createdAtColumnInProductsTable, ascending: false)
-        .asStream()
-        .handleError((error, stackTrace) {
-      print('>>> LỖI TRONG STREAM SUPABASE (PopularDishesWidget): $error');
-      print('>>> STACK TRACE STREAM: $stackTrace');
-    });
+    _dishesStream = _dishController.getPopularDishes();
   }
+
 
   @override
   Widget build(BuildContext context) {

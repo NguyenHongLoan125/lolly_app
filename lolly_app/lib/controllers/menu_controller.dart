@@ -4,29 +4,24 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 Future<void> addToMenu({
   required BuildContext context,
   required String dishId,
-  // required String userId,
-
+  required String userId,
 }) async {
   try {
-    final response = await Supabase.instance.client
-        .from('menus')
-        .insert(
-        {'dishId': dishId,
-          //'user_id': userId,
-        });
+    debugPrint('🧪 Adding dish: $dishId for user: $userId');
 
-    if (response == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã thêm vào thực đơn!')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lỗi khi thêm vào thực đơn.')),
-      );
-    }
-  } catch (error) {
+    final result = await Supabase.instance.client
+        .from('menus')
+        .insert({
+      'userId': userId,
+      'dishId': dishId,
+      'created_at': DateTime.now().toIso8601String(),
+    });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Lỗi: $error')),
+      const SnackBar(content: Text('Đã thêm vào menu!')),
+    );
+  } catch (e, s) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đã xảy ra lỗi khi thêm món.')),
     );
   }
 }
