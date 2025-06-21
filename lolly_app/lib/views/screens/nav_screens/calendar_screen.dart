@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/menu_dish_item.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/week_selector.dart';
@@ -47,7 +48,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         children: [
           WeekSelector(
             onDateSelected: (selectedDate) {
-              _loadDishesByDate(selectedDate); // ✅ gọi lại stream khi chọn ngày
+              _loadDishesByDate(selectedDate);
             },
           ),
           const SizedBox(height: 20),
@@ -79,22 +80,77 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text('Chưa có món ăn nào.'),
-                      );
-                    }
-
-                    final dishes = snapshot.data!;
+                    final dishes = snapshot.data ?? [];
 
                     return ListView.builder(
                       padding: const EdgeInsets.all(16.0),
-                      itemCount: dishes.length,
+                      itemCount: dishes.isEmpty ? 2 : dishes.length + 1,
                       itemBuilder: (context, index) {
-                        final dishData = dishes[index];
+
+                        if (dishes.isEmpty && index == 0) {
+                          return const Padding(
+                            padding: EdgeInsets.only(bottom: 16.0),
+                            child: Text(
+                              'Bạn chưa lựa chọn món ăn nào trong thực đơn ngày hôm nay.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          );
+                        }
+
+                        if (index < dishes.length) {
+                          final dishData = dishes[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 12.0, bottom: 12),
+                            child: MenuDishItemWidget(dishData: dishData),
+                          );
+                        }
+
                         return Padding(
-                          padding: const EdgeInsets.only(right: 12.0, bottom: 12),
-                          child: MenuDishItemWidget(dishData: dishData),
+                          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    context.go('/home');
+                                  },
+                                  icon: const Icon(Icons.add_circle),
+                                  label: const Text("Thêm món", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF678A5D),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    // TODO: Xử lý gợi ý món
+                                  },
+                                  icon: const Icon(Icons.tips_and_updates),
+                                  label: const Text("Gợi ý",style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF678A5D),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       },
                     );
