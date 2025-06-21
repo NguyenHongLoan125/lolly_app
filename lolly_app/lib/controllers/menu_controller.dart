@@ -5,26 +5,26 @@ Future<void> addToMenu({
   required BuildContext context,
   required String dishId,
   required String userId,
+  required DateTime menuDate, // ✅ thêm ngày người dùng chọn
 }) async {
   try {
-    debugPrint('🧪 Adding dish: $dishId for user: $userId');
-
-    final result = await Supabase.instance.client
-        .from('menus')
-        .insert({
+    await Supabase.instance.client.from('menus').insert({
       'userId': userId,
       'dishId': dishId,
+      'menu_date': menuDate.toIso8601String(), // dùng ngày người dùng chọn
       'created_at': DateTime.now().toIso8601String(),
     });
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Đã thêm vào menu!')),
     );
-  } catch (e, s) {
+  } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Đã xảy ra lỗi khi thêm món.')),
     );
   }
 }
+
 Future<void> deleteToMenu({
   required BuildContext context,
   required String dishId,

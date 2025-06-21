@@ -20,29 +20,36 @@ class _WeekSelectorState extends State<WeekSelector> {
     super.initState();
     final now = DateTime.now();
     monday = now.subtract(Duration(days: now.weekday - 1));
-
-    // Tính index của ngày hôm nay trong tuần (0 = Mon, 6 = Sun)
     selectedIndex = now.weekday - 1;
 
-    // Gọi callback với ngày hôm nay nếu cần
-    widget.onDateSelected?.call(weekDates[selectedIndex]);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onDateSelected?.call(weekDates[selectedIndex]);
+    });
   }
-
 
   List<DateTime> get weekDates =>
       List.generate(7, (index) => monday.add(Duration(days: index)));
-
-  void nextWeek() {
-    setState(() {
-      monday = monday.add(const Duration(days: 7));
-    });
-  }
 
   void previousWeek() {
     setState(() {
       monday = monday.subtract(const Duration(days: 7));
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onDateSelected?.call(weekDates[selectedIndex]);
+    });
   }
+
+  void nextWeek() {
+    setState(() {
+      monday = monday.add(const Duration(days: 7));
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onDateSelected?.call(weekDates[selectedIndex]);
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +97,7 @@ class _WeekSelectorState extends State<WeekSelector> {
                       setState(() {
                         selectedIndex = index;
                       });
-                      widget.onDateSelected?.call(date); // callback ra ngoài nếu cần
+                      widget.onDateSelected?.call(date);
                     },
                     child: Container(
                       width: 40,

@@ -108,22 +108,38 @@ class DishItemWidget extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: ElevatedButton.icon(
-                      onPressed: () {
+                      onPressed: () async {
                         final dishId = dishData['id'] as String;
                         final userId = Supabase.instance.client.auth.currentUser?.id;
 
-                        if (userId != null) {
-                          addToMenu(
+                        if (userId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Không thể xác định người dùng.')),
+                          );
+                          return;
+                        }
+
+                        // ✅ Hiển thị DatePicker cho người dùng chọn ngày
+                        final DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2024), // hoặc nhỏ hơn tùy bạn
+                          lastDate: DateTime(2030),
+                          helpText: 'Chọn ngày thêm vào thực đơn',
+                          confirmText: 'Xong',
+                          cancelText: 'Huỷ',
+                        );
+
+                        if (pickedDate != null) {
+                          await addToMenu(
                             context: context,
                             dishId: dishId,
                             userId: userId,
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text(' Không thể xác định người dùng.')),
+                            menuDate: pickedDate, // ✅ dùng ngày người dùng chọn
                           );
                         }
                       },
+
                       icon: const Icon(Icons.add, size: 16),
                       label: const Text("Thêm vào thực đơn"),
                       style: ElevatedButton.styleFrom(

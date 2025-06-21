@@ -41,6 +41,7 @@ class DishController extends GetxController {
         .from('menus')
         .select('''
         id,
+        menu_date,
         created_at,
         userId,
         dishId,
@@ -58,11 +59,11 @@ class DishController extends GetxController {
           )
         )
       ''')
-        .gte('created_at', '${formattedDate}T00:00:00')
-        .lt('created_at', '${formattedDate}T23:59:59')
+        .eq('menu_date', formattedDate) // ✅ dùng menu_date để lọc
         .order('created_at', ascending: false)
         .asStream();
   }
+
   Future<List<String>> fetchSubCategories(String categoryName) async {
     final List<Map<String, dynamic>> data = await _supabase
         .from('sub_categories')

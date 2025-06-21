@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/menu_dish_item.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/week_selector.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' show Supabase;
 
 class CalendarScreen extends StatefulWidget {
   @override
@@ -10,37 +9,35 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  late final Stream<List<Map<String, dynamic>>>? _dishesStream;
-
-  late final DishController _dishController;
+  final DishController _dishController = DishController();
+  Stream<List<Map<String, dynamic>>>? _dishesStream;
 
   @override
   void initState() {
     super.initState();
-    _dishController = DishController();
-    final DateTime today = DateTime.now();
-    _dishesStream = _dishController.getDishesFromMenusByDate(today);
+    _loadDishesByDate(DateTime.now());
   }
+
+  void _loadDishesByDate(DateTime date) {
+    setState(() {
+      _dishesStream = _dishController.getDishesFromMenusByDate(date);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFECF5E3),
       appBar: AppBar(
         backgroundColor: const Color(0xFFECF5E3),
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
-        //   onPressed: () => Navigator.pop(context),
-        // ),
-
-        title: Text(
+        title: const Text(
           "Thực đơn theo tuần",
-          style: const TextStyle(
+          style: TextStyle(
             color: Color(0xFF007400),
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
-
         actions: [
           Image.asset('assets/logo.png', height: 70, width: 70),
         ],
@@ -50,12 +47,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
         children: [
           WeekSelector(
             onDateSelected: (selectedDate) {
+              _loadDishesByDate(selectedDate); // ✅ gọi lại stream khi chọn ngày
             },
           ),
-          const SizedBox(height: 20,),
+          const SizedBox(height: 20),
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(32),
                   topLeft: Radius.circular(32),
@@ -69,7 +67,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   stream: _dishesStream ?? const Stream.empty(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      return Center(
+                      return const Center(
                         child: Text(
                           'Đã có lỗi xảy ra khi tải dữ liệu',
                           style: TextStyle(color: Colors.red),
@@ -94,7 +92,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       itemCount: dishes.length,
                       itemBuilder: (context, index) {
                         final dishData = dishes[index];
-                        print(dishData);
                         return Padding(
                           padding: const EdgeInsets.only(right: 12.0, bottom: 12),
                           child: MenuDishItemWidget(dishData: dishData),
