@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lolly_app/views/screens/inner_screens/category_dish_screen.dart';
+import 'package:lolly_app/views/screens/inner_screens/favorite_screen.dart';
+import 'package:lolly_app/views/screens/inner_screens/posted_dish_screen.dart';
 import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
 import 'package:lolly_app/views/screens/main_screens.dart';
 import 'package:lolly_app/views/screens/nav_screens/account_screen.dart';
@@ -98,9 +100,18 @@ final GoRouter router = GoRouter(
         ),
         GoRoute(
           path: '/account',
-          pageBuilder: (context, state) =>  NoTransitionPage(child: AccountScreen()),
+          pageBuilder: (context, state) => NoTransitionPage(child: AccountScreen()),
         ),
+
       ],
+    ),
+    GoRoute(
+      path: '/favorites',
+      builder: (context, state) => FavoriteScreen(),
+    ),
+    GoRoute(
+      path: '/posted',
+      builder: (context, state) => PostedDishScreen(),
     ),
   ],
   errorPageBuilder: (context, state) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lolly_app/controllers/dish_controller.dart';
+import 'package:lolly_app/controllers/menu_controller.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/dish_item.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/menu_dish_item.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/week_selector.dart';
 
@@ -12,6 +14,7 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   final DishController _dishController = DishController();
   Stream<List<Map<String, dynamic>>>? _dishesStream;
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -47,10 +50,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
       body: Column(
         children: [
           WeekSelector(
-            onDateSelected: (selectedDate) {
-              _loadDishesByDate(selectedDate);
+            onDateSelected: (date) {
+              setState(() {
+                selectedDate = date;
+                _loadDishesByDate(date);
+              });
             },
           ),
+
           const SizedBox(height: 20),
           Expanded(
             child: Container(
@@ -135,8 +142,71 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               Expanded(
                                 child: ElevatedButton.icon(
                                   onPressed: () {
-                                    // TODO: Xử lý gợi ý món
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.white,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                                      ),
+                                      builder: (context) {
+                                        return SizedBox(
+                                          height: MediaQuery.of(context).size.height * 0.8,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: StreamBuilder<List<Map<String, dynamic>>>(
+                                              stream: _dishController.getFavoriteDishesStream(),
+                                            builder: (context, snapshot) {
+                                                if (snapshot.hasError) {
+                                                  return const Center(child: Text('Lỗi khi tải dữ liệu.'));
+                                                }
+
+                                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                                  return const Center(child: CircularProgressIndicator());
+                                                }
+
+                                                final dishes = snapshot.data ?? [];
+                                                print(">>> Dishes nhận được: $dishes");
+
+                                                if (dishes.isEmpty) {
+                                                  return const Center(child: Text('Không có món ăn nào.'));
+                                                }
+
+                                                return ListView.builder(
+                                                  itemCount: dishes.length,
+                                                  itemBuilder: (context, index) {
+                                                    final rawDish = dishes[index];
+                                                    final dishData = rawDish['dishes'] ?? rawDish; // hỗ trợ cả khi dishData là raw
+
+
+                                                    return Padding(
+                                                      padding: const EdgeInsets.only(bottom: 8.0),
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          Navigator.pop(context);
+                                                          print("Bạn đã chọn món: ${dishData['dish_name']}");
+                                                          addToMenu(
+                                                            context: context,
+                                                            dishId: dishData['id'],
+                                                            userId: dishData['user_id'],
+                                                            menuDate: selectedDate,
+                                                          );
+                                                          _loadDishesByDate(selectedDate);
+                                                        },
+                                                        child: DishItemWidget(dishData: dishData),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+
+                                            },
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
                                   },
+
                                   icon: const Icon(Icons.tips_and_updates),
                                   label: const Text("Gợi ý",style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
                                   style: ElevatedButton.styleFrom(
