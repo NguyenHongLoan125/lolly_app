@@ -34,8 +34,53 @@ class DishController extends GetxController {
       print('>>> STACK TRACE: $stackTrace');
     });
   }
+  Stream<List<Map<String, dynamic>>> getFavoriteDishesStream() {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) {
+      print('>>> currentUser bị null');
+      return Stream.value([]);
+    }
+
+    final userId = user.id;
+    print('>>> USER ID: $userId');
+
+    return Supabase.instance.client
+        .from('favorites')
+        .select('dish_id, dishes(*, dish_sub_categories(categories, sub_categories(sub_category_name)))')
+        .eq('user_id', userId)
+        .order('created_at', ascending: false)
+        .asStream()
+        .handleError((error, stackTrace) {
+      print('>>> LỖI TRONG FAVORITES CONTROLLER: $error');
+      print('>>> STACK TRACE: $stackTrace');
+    });
+  }
+
+  Stream<List<Map<String, dynamic>>> getMyDishesStream() {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) {
+      print('>>> currentUser bị null');
+      return Stream.value([]);
+    }
+
+    final userId = user.id;
+    print('>>> USER ID: $userId');
+
+    return Supabase.instance.client
+        .from('dishes')
+        .select('*, dish_sub_categories(categories, sub_categories(sub_category_name))')
+        .eq('user_id', userId)
+        .order('created_at', ascending: false)
+        .asStream()
+        .handleError((error, stackTrace) {
+      print('>>> LỖI TRONG getMyDishesStream: $error');
+      print('>>> STACK TRACE: $stackTrace');
+    });
+  }
+
   Stream<List<Map<String, dynamic>>> getDishesFromMenusByDate(DateTime date) {
-    final String formattedDate = date.toIso8601String().split('T').first; // yyyy-MM-dd
+    final start = DateTime.utc(date.year, date.month, date.day);
+    final end = start.add(const Duration(days: 1));
 
     return _supabase
         .from('menus')
@@ -59,7 +104,8 @@ class DishController extends GetxController {
           )
         )
       ''')
-        .eq('menu_date', formattedDate) // ✅ dùng menu_date để lọc
+        .gte('menu_date', start.toIso8601String()) // từ đầu ngày
+        .lt('menu_date', end.toIso8601String())   // tới trước ngày kế tiếp
         .order('created_at', ascending: false)
         .asStream();
   }

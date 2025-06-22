@@ -142,3 +142,15 @@ class AuthenticationController {
     }
   }
 }
+Future<String?> getCurrentUserName() async {
+  final userId = Supabase.instance.client.auth.currentUser?.id;
+  if (userId == null) return null;
+
+  final result = await Supabase.instance.client
+      .from('users')
+      .select('firstname')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+  return result != null ? result['firstname'] as String? : null;
+}
