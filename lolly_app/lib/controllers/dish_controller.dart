@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:lolly_app/models/dish_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DishController extends GetxController {
@@ -117,6 +118,42 @@ class DishController extends GetxController {
         .eq('categories.category_name', categoryName);
 
     return data.map((e) => e['sub_category_name'] as String).toList();
+  }
+  Future<bool> isLikedByUser(String userId, String dishId) async {
+    final response = await _supabase
+        .from('favorites')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('dish_id', dishId)
+        .maybeSingle();
+    return response != null;
+  }
+
+  Future<void> likeDish(String userId, DishModel dish) async {
+    await _supabase.from('favorites').insert({
+      'user_id': userId,
+      'dish_id': dish.id,
+    });
+
+    await _supabase
+        .from('dishes')
+        .update({'likes': dish.likes + 1})
+        .eq('id', dish.id);
+  }
+
+  Future<void> unlikeDish(String userId, DishModel dish) async {
+    final newLikeCount = dish.likes > 0 ? dish.likes - 1 : 0;
+
+    await _supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', userId)
+        .eq('dish_id', dish.id);
+
+    await _supabase
+        .from('dishes')
+        .update({'likes': newLikeCount})
+        .eq('id', dish.id);
   }
 
 

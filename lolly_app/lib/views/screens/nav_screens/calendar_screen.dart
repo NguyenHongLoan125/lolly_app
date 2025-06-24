@@ -183,7 +183,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                                       padding: const EdgeInsets.only(bottom: 8.0),
                                                       child: GestureDetector(
                                                         onTap: () {
-                                                          Navigator.pop(context);
+                                                          context.pop(context);
                                                           print("Bạn đã chọn món: ${dishData['dish_name']}");
                                                           addToMenu(
                                                             context: context,
