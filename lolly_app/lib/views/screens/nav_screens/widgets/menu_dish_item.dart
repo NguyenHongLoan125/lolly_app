@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/controllers/menu_controller.dart';
+import 'package:lolly_app/models/dish_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MenuDishItemWidget extends StatefulWidget {
   final Map<String, dynamic> dishData;
@@ -12,12 +15,60 @@ class MenuDishItemWidget extends StatefulWidget {
 
 class _MenuDishItemWidgetState extends State<MenuDishItemWidget> {
   bool isDeleted = false;
+  late DishModel _dish;
+  late DishController _controller;
+  bool isLiked = false;
+  int likeCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _dish = DishModel.fromMap(widget.dishData);
+    _controller = DishController();
+    likeCount = _dish.likes;
+    _checkIfLiked();
+  }
+
+  Future<void> _checkIfLiked() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+    final liked = await _controller.isLikedByUser(userId, _dish.id);
+    setState(() {
+      isLiked = liked;
+    });
+  }
+
+  Future<void> _toggleLike() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bạn cần đăng nhập để yêu thích món ăn.')),
+      );
+      return;
+    }
+
+    if (isLiked) {
+      await _controller.unlikeDish(userId, _dish);
+      setState(() {
+        isLiked = false;
+        likeCount = likeCount > 0 ? likeCount - 1 : 0;
+      });
+
+    } else {
+      await _controller.likeDish(userId, _dish);
+      setState(() {
+        isLiked = true;
+        likeCount += 1;
+      });
+      print("like: ");
+      print(likeCount);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     if (isDeleted) return const SizedBox.shrink();
-    final dishName = widget.dishData['dishes']?['dish_name'] ?? 'Món ăn';
-
     return Padding(
       padding: const EdgeInsets.only(left: 10),
       child: Container(
@@ -44,7 +95,7 @@ class _MenuDishItemWidgetState extends State<MenuDishItemWidget> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  widget.dishData['dishes']?['image_url'] ?? '',
+                  _dish.imageUrl ?? '',
                   width: 110,
                   height: 90,
                   fit: BoxFit.fill,
@@ -63,22 +114,34 @@ class _MenuDishItemWidgetState extends State<MenuDishItemWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        dishName,
+                        _dish.name,
                         style: GoogleFonts.lato(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF1E3354),
                         ),
                       ),
-                      Row(
-                        children: [
-                          const Icon(Icons.favorite_border, color: Colors.red, size: 16),
-                          const SizedBox(width: 4),
-                          Text(
-                            '39',
-                            style: GoogleFonts.lato(fontSize: 13, color: Colors.red),
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: _toggleLike,
+                        child: Row(
+                          children: [
+                            Icon(
+                              isLiked
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: Colors.red,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$likeCount',
+                              style: GoogleFonts.lato(
+                                fontSize: 13,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -89,7 +152,7 @@ class _MenuDishItemWidgetState extends State<MenuDishItemWidget> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'Nguyên liệu: ${ widget.dishData['dishes']?['ingredient'] ?? ''}',
+                      'Nguyên liệu: ${ _dish.ingredient}',
                       style: GoogleFonts.lato(
                         fontSize: 13,
                         color: const Color(0xFF7F8E9D),
@@ -105,12 +168,12 @@ class _MenuDishItemWidgetState extends State<MenuDishItemWidget> {
                     alignment: Alignment.centerRight,
                     child: IconButton(
                       onPressed: () {
-                        final dishId = widget.dishData['dishes']?['id'] as String;
+                        final dishId = _dish.id as String;
                         print('Dish ID to delete: $dishId');
                         deleteToMenu(
                           context: context,
-                          dishId: widget.dishData['dishId'],
-                          userId: widget.dishData['userId'],
+                          dishId: _dish.id,
+                          userId: _dish.user_id,
                           createdAt: DateTime.parse(widget.dishData['created_at']),
                         );
                         setState(() => isDeleted = true);

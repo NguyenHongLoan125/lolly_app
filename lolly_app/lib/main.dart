@@ -5,7 +5,6 @@ import 'package:lolly_app/views/screens/nav_screens/add_dish_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-
 import 'controllers/dish_controller.dart';
 
 void main() async {

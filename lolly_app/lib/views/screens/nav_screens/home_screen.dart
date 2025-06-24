@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/banner_widget.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/category_item.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/popular_dishes_widget.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/search_hover.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -48,14 +49,15 @@ class _LollyScreenState extends State<HomeScreen> {
                         height: 60,
                       ),
                      ),
-                     Padding(
-                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                       child: Icon(
-                         Icons.search,
-                         size: 35,
-                         color: Color(0xFF007400),
-                       ),
-                     ),
+                     // Padding(
+                     //   padding: const EdgeInsets.symmetric(horizontal: 10),
+                     //   child: Icon(
+                     //     Icons.search,
+                     //     size: 35,
+                     //     color: Color(0xFF007400),
+                     //   ),
+                     // ),
+                     SearchHoverWidget(),
                    ],
                  ),
 
