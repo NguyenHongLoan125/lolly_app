@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lolly_app/controllers/authentication_controller.dart';
 import 'package:lolly_app/models/auth_model.dart';
+import 'package:lolly_app/views/screens/forgot_password/input_email_screen.dart';
 import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
 import 'package:lolly_app/views/screens/login_sigup_screen/sign_up.dart';
 
@@ -304,14 +305,15 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                                   Navigator.pushReplacement(context,
                                       MaterialPageRoute(
                                           builder: (context)
-                                              => SignUpScreen()
+                                              => InputEmailScreen()
                                       )
                                   );
                                 },
                                 child: Text('Quên mật khẩu?',
                                   style: TextStyle(
                                       fontSize: 15,
-                                      color: Colors.white
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500
                                   ),
                                 )
                             ),
