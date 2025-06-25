@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:lolly_app/models/dish_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../models/ingredient_model.dart';
+
 class DishController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
   Stream<List<Map<String, dynamic>>> getPopularDishes() {
@@ -83,7 +85,13 @@ class DishController extends GetxController {
     final start = DateTime.utc(date.year, date.month, date.day);
     final end = start.add(const Duration(days: 1));
 
-    return _supabase
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) {
+      print('⚠️ Chưa đăng nhập');
+      return const Stream.empty();
+    }
+
+    return Supabase.instance.client
         .from('menus')
         .select('''
         id,
@@ -105,11 +113,14 @@ class DishController extends GetxController {
           )
         )
       ''')
+        .eq('userId', userId) // 👈 Lọc theo user hiện tại
         .gte('menu_date', start.toIso8601String()) // từ đầu ngày
-        .lt('menu_date', end.toIso8601String())   // tới trước ngày kế tiếp
+        .lt('menu_date', end.toIso8601String())    // trước ngày hôm sau
         .order('created_at', ascending: false)
         .asStream();
   }
+
+
 
   Future<List<String>> fetchSubCategories(String categoryName) async {
     final List<Map<String, dynamic>> data = await _supabase

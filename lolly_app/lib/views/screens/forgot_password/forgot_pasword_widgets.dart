@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AddLogo extends StatelessWidget {
   const AddLogo({super.key});
@@ -87,24 +88,32 @@ class CreateScreen extends StatelessWidget {
 }
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final Widget backPage;
-  const CustomAppBar({super.key, required this.backPage});
+  final String backRoute; // dùng route name/path
+  final Object? extra;    // nếu muốn truyền thêm dữ liệu
+
+  const CustomAppBar({
+    super.key,
+    required this.backRoute,
+    this.extra,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Color.fromRGBO(204, 255, 152, 1),
+      backgroundColor: const Color.fromRGBO(204, 255, 152, 1),
       leading: Padding(
-          padding: EdgeInsets.all(10),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => backPage),
-              );
-            },
-            child: Icon(Icons.arrow_back_sharp,color: Colors.white,size: 30,),
+        padding: const EdgeInsets.all(10),
+        child: GestureDetector(
+          onTap: () {
+            // Sử dụng context.go thay cho pushReplacement
+            context.go(backRoute, extra: extra);
+          },
+          child: const Icon(
+            Icons.arrow_back_sharp,
+            color: Colors.white,
+            size: 30,
           ),
+        ),
       ),
     );
   }
@@ -112,6 +121,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-
-
 

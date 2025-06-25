@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lolly_app/controllers/authentication_controller.dart';
 import 'package:lolly_app/models/auth_model.dart';
 import 'package:lolly_app/views/screens/forgot_password/input_email_screen.dart';
@@ -302,12 +303,8 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                           children: [
                             GestureDetector(
                                 onTap: (){
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(
-                                          builder: (context)
-                                              => InputEmailScreen()
-                                      )
-                                  );
+                                  context.go('/input-email');
+
                                 },
                                 child: Text('Quên mật khẩu?',
                                   style: TextStyle(
@@ -330,11 +327,7 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                                 const SizedBox(width: 7,),
                                 GestureDetector(
                                     onTap: (){
-                                      Navigator.pushReplacement(context,
-                                          MaterialPageRoute(builder: (context)
-                                              => SignUpScreen()
-                                          )
-                                      );
+                                      context.go('/sign_up');
                                     },
                                     child: Text ('Đăng ký ngay',
                                       style: TextStyle(

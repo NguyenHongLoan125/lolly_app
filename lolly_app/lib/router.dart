@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lolly_app/views/screens/forgot_password/input_email_screen.dart';
+import 'package:lolly_app/views/screens/forgot_password/new_password_screen.dart';
+import 'package:lolly_app/views/screens/forgot_password/vertification_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/category_dish_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/favorite_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/posted_dish_screen.dart';
 import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
+import 'package:lolly_app/views/screens/login_sigup_screen/sign_up.dart';
 import 'package:lolly_app/views/screens/main_screens.dart';
 import 'package:lolly_app/views/screens/nav_screens/account_screen.dart';
 import 'package:lolly_app/views/screens/nav_screens/add_dish_screen.dart';
@@ -18,16 +22,32 @@ import 'package:lolly_app/controllers/category_controller.dart';
 
 Future<String?> _appRedirect(BuildContext context, GoRouterState state) async {
   final loggedIn = Supabase.instance.client.auth.currentUser != null;
-  final isOnLoginPage = state.matchedLocation == '/login';
+  final location = state.matchedLocation;
 
-  if (!loggedIn) {
-    return '/login';
-  } else if (loggedIn && isOnLoginPage) {
-    return '/home';
+  // Danh sách các route KHÔNG cần đăng nhập
+  final unauthenticatedPaths = [
+    '/login',
+    '/sign_up',
+    '/input-email',
+    '/vertification',
+    '/new-password',
+  ];
+
+  // Kiểm tra xem route hiện tại có nằm trong danh sách không
+  final isInUnauthenticatedPage = unauthenticatedPaths.contains(location);
+
+  if (!loggedIn && !isInUnauthenticatedPage) {
+    return '/login'; // Bắt buộc đăng nhập
   }
 
-  return null;
+  if (loggedIn && location == '/login') {
+    return '/home'; // Đã đăng nhập mà vào login thì chuyển về home
+  }
+
+  return null; // Cho phép truy cập bình thường
 }
+
+
 final GoRouter router = GoRouter(
   initialLocation: '/login',
   redirect: _appRedirect,
@@ -112,6 +132,31 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/posted',
       builder: (context, state) => PostedDishScreen(),
+    ),
+    GoRoute(
+      path: '/vertification',
+      builder: (context, state) {
+        final email = state.extra as String;
+        return VertificationScreen(email: email);
+      },
+    ),
+    GoRoute(
+      path: '/new-password',
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+        final email = data['email'] as String;
+        final otp = data['otp'] as String;
+
+        return NewPasswordScreen(email: email, otp: otp);
+      },
+    ),
+    GoRoute(
+      path: '/input-email',
+      builder: (context, state) => const InputEmailScreen(),
+    ),
+    GoRoute(
+      path: '/sign_up',
+      builder: (context, state) => const SignUpScreen(),
     ),
   ],
   errorPageBuilder: (context, state) {

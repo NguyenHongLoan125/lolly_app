@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lolly_app/controllers/forgot_password_controller.dart';
 import 'package:lolly_app/views/screens/forgot_password/forgot_pasword_widgets.dart';
 import 'package:lolly_app/views/screens/forgot_password/vertification_screen.dart';
@@ -19,7 +20,7 @@ class _InputEmailScreenState extends State<InputEmailScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          appBar: CustomAppBar(backPage: LoginScreen()),
+          appBar: CustomAppBar(backRoute: '/home'),
           body: Container(
             width: double.infinity,
             height: double.infinity,
@@ -91,10 +92,9 @@ class _InputEmailScreenState extends State<InputEmailScreen> {
                                     try {
                                       final success = await ForgotPasswordController.sendOtp(email);
                                       if (success) {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => VertificationScreen(email: email)),
-                                        );
+                                        context.go('/vertification', extra: _emailController.text.trim());
+
+
                                       } else {
                                         print('❌ sendOtp trả về false với email: $email');
                                         ScaffoldMessenger.of(context).showSnackBar(
