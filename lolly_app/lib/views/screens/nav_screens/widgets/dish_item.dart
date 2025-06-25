@@ -5,6 +5,8 @@ import 'package:lolly_app/controllers/menu_controller.dart';
 import 'package:lolly_app/models/dish_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../models/ingredient_model.dart';
+
 class DishItemWidget extends StatefulWidget {
   final Map<String, dynamic> dishData;
 
@@ -149,15 +151,42 @@ class _DishItemWidgetState extends State<DishItemWidget> {
 
                   const SizedBox(height: 4),
 
-                  Text(
-                    'Nguyên liệu: ${_dish.ingredient}',
-                    style: GoogleFonts.lato(
-                      fontSize: 13,
-                      color: const Color(0xFF7F8E9D),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  FutureBuilder<List<Ingredient>>(
+                    future: fetchIngredientsByDish(_dish.id),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Text('Đang tải nguyên liệu...');
+                      }
+
+                      if (snapshot.hasError) {
+                        return const Text('Lỗi khi tải nguyên liệu');
+                      }
+
+                      final ingredients = snapshot.data ?? [];
+
+                      if (ingredients.isEmpty) {
+                        return const Text(
+                          'Nguyên liệu: (không có)',
+                          style: TextStyle(fontSize: 13, color: Color(0xFF7F8E9D)),
+                        );
+                      }
+
+                      final ingredientText = ingredients
+                          .map((e) => '${e.name} (${e.quantity})')
+                          .join(', ');
+
+                      return Text(
+                        'Nguyên liệu: $ingredientText',
+                        style: GoogleFonts.lato(
+                          fontSize: 13,
+                          color: const Color(0xFF7F8E9D),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    },
                   ),
+
 
                   const SizedBox(height: 10),
 
@@ -218,4 +247,14 @@ class _DishItemWidgetState extends State<DishItemWidget> {
       ),
     );
   }
+}
+Future<List<Ingredient>> fetchIngredientsByDish(String dishId) async {
+  final response = await Supabase.instance.client
+      .from('ingredients')
+      .select()
+      .eq('dish_id', dishId);
+
+  return (response as List)
+      .map((e) => Ingredient.fromMap(e))
+      .toList();
 }

@@ -26,7 +26,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
             backgroundColor: Color(0xffECF5E3),
             leading: IconButton(
                 onPressed: (){
-                  context.go('/main');
+                  context.go('/home');
                 },
                 icon: const Icon(Icons.arrow_back,color:Color(0xff007400),size: 50,)
             ),

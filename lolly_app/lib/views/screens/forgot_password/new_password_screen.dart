@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lolly_app/controllers/forgot_password_controller.dart';
 import 'package:lolly_app/views/screens/forgot_password/forgot_pasword_widgets.dart';
 import 'package:lolly_app/views/screens/forgot_password/vertification_screen.dart';
@@ -26,7 +27,10 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          appBar: CustomAppBar(backPage: VertificationScreen(email: widget.email)),
+          appBar: CustomAppBar(
+            backRoute: '/vertification',
+            extra: widget.email,
+          ),
           body: Container(
             width: double.infinity,
             height: double.infinity,
@@ -159,10 +163,8 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                                         );
 
                                         if (success) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(builder: (_) => LoginScreen()),
-                                          );
+                                          context.go('/login');
+
                                         } else {
                                           print('❌ resetPassword trả về false');
                                           ScaffoldMessenger.of(context).showSnackBar(
