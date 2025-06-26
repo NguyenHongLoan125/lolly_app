@@ -4,7 +4,6 @@ import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/controllers/menu_controller.dart';
 import 'package:lolly_app/models/dish_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../../../../models/ingredient_model.dart';
 
 class MenuDishItemWidget extends StatefulWidget {
@@ -216,14 +215,4 @@ class _MenuDishItemWidgetState extends State<MenuDishItemWidget> {
       ),
     );
   }
-}
-Future<List<Ingredient>> fetchIngredientsByDish(String dishId) async {
-  final response = await Supabase.instance.client
-      .from('ingredients')
-      .select()
-      .eq('dish_id', dishId);
-
-  return (response as List)
-      .map((e) => Ingredient.fromMap(e))
-      .toList();
 }
