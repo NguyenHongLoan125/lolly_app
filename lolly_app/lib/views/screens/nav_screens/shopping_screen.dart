@@ -50,7 +50,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         checkedStatus = newStatus;
       });
     } catch (e) {
-      print('❌ Lỗi khi tải trạng thái check: $e');
+      print('Lỗi khi tải trạng thái check: $e');
     }
   }
 
@@ -74,7 +74,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         'date': dateStr,
       }, onConflict: 'user_id, ingredient_name, date');
     } catch (e) {
-      print('❌ Lỗi khi lưu trạng thái: $e');
+      print('Lỗi khi lưu trạng thái: $e');
     }
   }
 

@@ -87,7 +87,7 @@ class DishController extends GetxController {
 
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
-      print('⚠️ Chưa đăng nhập');
+      print('Chưa đăng nhập');
       return const Stream.empty();
     }
 
@@ -113,7 +113,7 @@ class DishController extends GetxController {
           )
         )
       ''')
-        .eq('userId', userId) // 👈 Lọc theo user hiện tại
+        .eq('userId', userId)
         .gte('menu_date', start.toIso8601String()) // từ đầu ngày
         .lt('menu_date', end.toIso8601String())    // trước ngày hôm sau
         .order('created_at', ascending: false)
@@ -166,6 +166,7 @@ class DishController extends GetxController {
         .update({'likes': newLikeCount})
         .eq('id', dish.id);
   }
+
 
 
   List<Map<String, dynamic>> filterDishesByCategory({

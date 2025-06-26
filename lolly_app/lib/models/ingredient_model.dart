@@ -104,4 +104,13 @@ Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
 }
 
 
+Future<List<Ingredient>> fetchIngredientsByDish(String dishId) async {
+  final response = await Supabase.instance.client
+      .from('ingredients')
+      .select()
+      .eq('dish_id', dishId);
 
+  return (response as List)
+      .map((e) => Ingredient.fromMap(e))
+      .toList();
+}
