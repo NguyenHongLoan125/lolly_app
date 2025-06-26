@@ -161,6 +161,7 @@ class _DishItemWidgetState extends State<DishItemWidget> {
                       if (snapshot.hasError) {
                         return const Text('Lỗi khi tải nguyên liệu');
                       }
+                      print('DISH ID: ${_dish.id}');
 
                       final ingredients = snapshot.data ?? [];
 
@@ -247,14 +248,4 @@ class _DishItemWidgetState extends State<DishItemWidget> {
       ),
     );
   }
-}
-Future<List<Ingredient>> fetchIngredientsByDish(String dishId) async {
-  final response = await Supabase.instance.client
-      .from('ingredients')
-      .select()
-      .eq('dish_id', dishId);
-
-  return (response as List)
-      .map((e) => Ingredient.fromMap(e))
-      .toList();
 }

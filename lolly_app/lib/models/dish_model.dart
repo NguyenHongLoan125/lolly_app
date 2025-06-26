@@ -18,7 +18,7 @@ class DishModel {
   });
 
   factory DishModel.fromMap(Map<String, dynamic> map) {
-    final data = map['dishes'] ?? map; // handle JOIN data
+    final data = map['dishes'] ?? map; // handle JOIN case
 
     return DishModel(
       id: data['id'] ?? '',
@@ -26,7 +26,7 @@ class DishModel {
       imageUrl: data['image_url'] ?? '',
       likes: int.tryParse(data['likes']?.toString() ?? '0') ?? 0,
       user_id: data['user_id'] ?? '',
-      ingredients: (data['ingredients'] as List<dynamic>?)
+      ingredients: (data['dish_ingredients'] as List<dynamic>?)
           ?.map((e) => Ingredient.fromMap(e))
           .toList() ??
           [],
