@@ -25,33 +25,48 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   Future<void> _searchDishes(String keyword) async {
     final lowerKeyword = keyword.toLowerCase();
 
-    // Lấy tất cả món ăn
+    // 1. Lấy tất cả món ăn
     final dishesResponse = await supabase.from('dishes').select();
-    final dishes = dishesResponse as List;
+    final List<Map<String, dynamic>> dishes = List<Map<String, dynamic>>.from(dishesResponse);
 
-    // Lấy tất cả nguyên liệu
+    // 2. Lấy tất cả nguyên liệu
     final ingredientsResponse = await supabase.from('ingredients').select();
-    final ingredients = ingredientsResponse as List;
+    final List<Map<String, dynamic>> ingredients = List<Map<String, dynamic>>.from(ingredientsResponse);
 
-    // Tìm món ăn theo tên hoặc nguyên liệu
+    // 3. Lấy tất cả liên kết dish-ingredient
+    final dishIngResponse = await supabase.from('dish_ingredients').select();
+    final List<Map<String, dynamic>> dishIngredients = List<Map<String, dynamic>>.from(dishIngResponse);
+
+    // 4. Lọc các món theo keyword
     final filtered = dishes.where((dish) {
       final dishName = dish['dish_name'].toString().toLowerCase();
-      final relatedIngredients = ingredients.where(
-            (ing) => ing['dish_id'] == dish['id'],
+      if (dishName.contains(lowerKeyword)) return true;
+
+      // Lấy các nguyên liệu liên quan đến món này
+      final relatedDishIngredients = dishIngredients.where(
+            (di) => di['dish_id'] == dish['id'],
       );
 
-      final containsInIngredients = relatedIngredients.any(
-            (ing) => ing['ingredient_name'].toString().toLowerCase().contains(lowerKeyword),
-      );
+      final containsInIngredients = relatedDishIngredients.any((di) {
+        final ingId = di['ingredient_id'];
+        final ing = ingredients.firstWhere(
+              (i) => i['ingredient_id'] == ingId,
+          orElse: () => {},
+        );
+        final ingName = ing['ingredient_name']?.toString().toLowerCase() ?? '';
+        return ingName.contains(lowerKeyword);
+      });
 
-      return dishName.contains(lowerKeyword) || containsInIngredients;
+      return containsInIngredients;
     }).toList();
 
+    // 5. Cập nhật kết quả
     setState(() {
       _results = filtered;
       _loading = false;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
