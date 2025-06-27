@@ -65,13 +65,14 @@ class AccountScreen extends StatelessWidget {
                             children: [
                               const SizedBox(width: 20),
                               const Icon(Icons.save, color: Color(0xFF007400)),
-                              const SizedBox(width: 20),
+                              const SizedBox(width: 40),
                               Text(
                                 'Bản lưu nháp',
                                 style: GoogleFonts.roboto(
                                   fontSize: 20,
                                   color: Colors.black87,
                                   fontWeight: FontWeight.w500,
+                                  letterSpacing: 1,
                                 ),
                               ),
                             ],
@@ -96,13 +97,14 @@ class AccountScreen extends StatelessWidget {
                             children: [
                               const SizedBox(width: 20),
                               const Icon(Icons.note_add, color: Color(0xFF007400)),
-                              const SizedBox(width: 20),
+                              const SizedBox(width: 40),
                               Text(
                                 'Bài đã đăng',
                                 style: GoogleFonts.roboto(
                                   fontSize: 20,
                                   color: Colors.black87,
                                   fontWeight: FontWeight.w500,
+                                  letterSpacing: 1,
                                 ),
                               ),
                             ],
@@ -126,13 +128,14 @@ class AccountScreen extends StatelessWidget {
                             children: [
                               const SizedBox(width: 20),
                               const Icon(Icons.favorite, color: Color(0xFF007400)),
-                              const SizedBox(width: 20),
+                              const SizedBox(width: 40),
                               Text(
                                 'Món đã lưu',
                                 style: GoogleFonts.roboto(
                                   fontSize: 20,
                                   color: Colors.black87,
                                   fontWeight: FontWeight.w500,
+                                  letterSpacing: 1,
                                 ),
                               ),
                             ],
@@ -152,13 +155,14 @@ class AccountScreen extends StatelessWidget {
                           children: [
                             const SizedBox(width: 20),
                             const Icon(Icons.manage_accounts, color: Color(0xFF007400)),
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 40),
                             Text(
                               'Chỉnh sửa hồ sơ',
                               style: GoogleFonts.roboto(
                                 fontSize: 20,
                                 color: Colors.black87,
                                 fontWeight: FontWeight.w500,
+                                letterSpacing: 1,
                               ),
                             ),
 
