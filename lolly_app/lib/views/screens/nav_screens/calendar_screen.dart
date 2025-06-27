@@ -5,6 +5,7 @@ import 'package:lolly_app/controllers/menu_controller.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/dish_item.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/menu_dish_item.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/week_selector.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CalendarScreen extends StatefulWidget {
   @override
@@ -34,6 +35,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
       backgroundColor: const Color(0xFFECF5E3),
       appBar: AppBar(
         backgroundColor: const Color(0xFFECF5E3),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
+          onPressed: () => context.go('/home'),
+        ),
         title: const Text(
           "Thực đơn theo tuần",
           style: TextStyle(
@@ -144,6 +149,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   onPressed: () {
                                     showModalBottomSheet(
                                       context: context,
+                                      useRootNavigator: true,
                                       isScrollControlled: true,
                                       backgroundColor: Colors.white,
                                       shape: const RoundedRectangleBorder(
@@ -166,7 +172,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                                 }
 
                                                 final dishes = snapshot.data ?? [];
-                                                print(">>> Dishes nhận được: $dishes");
+                                                // print(">>> Dishes nhận được: $dishes");
 
                                                 if (dishes.isEmpty) {
                                                   return const Center(child: Text('Không có món ăn nào.'));
@@ -177,22 +183,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                                   itemBuilder: (context, index) {
                                                     final rawDish = dishes[index];
                                                     final dishData = rawDish['dishes'] ?? rawDish; // hỗ trợ cả khi dishData là raw
-
+                                                    final userId = Supabase.instance.client.auth.currentUser!.id;
 
                                                     return Padding(
                                                       padding: const EdgeInsets.only(bottom: 8.0),
                                                       child: GestureDetector(
                                                         onTap: () {
-                                                          context.pop(context);
-                                                          print("Bạn đã chọn món: ${dishData['dish_name']}");
+                                                          context.pop(); // đóng bottom sheet
+
                                                           addToMenu(
                                                             context: context,
                                                             dishId: dishData['id'],
-                                                            userId: dishData['user_id'],
+                                                            userId: userId,
                                                             menuDate: selectedDate,
-                                                          );
-                                                          _loadDishesByDate(selectedDate);
+                                                          ).then((_) {
+                                                            _loadDishesByDate(selectedDate); // load lại món ăn sau khi thêm xong
+                                                          });
                                                         },
+
                                                         child: DishItemWidget(dishData: dishData),
                                                       ),
                                                     );

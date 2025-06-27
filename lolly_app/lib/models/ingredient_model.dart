@@ -159,7 +159,6 @@ Future<List<Ingredient>> fetchIngredientsByDish(String dishId) async {
 }
 
 Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
-  final formattedDate = date.toIso8601String().substring(0, 10);
   final userId = Supabase.instance.client.auth.currentUser?.id;
 
   if (userId == null) {
@@ -169,11 +168,16 @@ Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
 
   try {
     // 1. Lấy dishId theo ngày
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
     final dailyMenuResponse = await Supabase.instance.client
         .from('menus')
         .select('dishId')
-        .eq('menu_date', formattedDate)
+        .gte('menu_date', startOfDay.toIso8601String())
+        .lt('menu_date', endOfDay.toIso8601String())
         .eq('userId', userId);
+    // print('menu data: $dailyMenuResponse');
 
     final dailyMenuList = List<Map<String, dynamic>>.from(dailyMenuResponse);
     final dishIds = dailyMenuList.map((e) => e['dishId'] as String).toList();
