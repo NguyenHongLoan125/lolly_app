@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/models/catygory_models.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/category_button_list.dart';
@@ -44,6 +45,10 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
       backgroundColor: const Color(0xFFECF5E3),
       appBar: AppBar(
         backgroundColor: const Color(0xFFECF5E3),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
+          onPressed: () => context.go('/home'),
+        ),
         title: Text(
           widget.categoryModel.category_name,
           style: const TextStyle(

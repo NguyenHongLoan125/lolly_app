@@ -11,6 +11,10 @@ class AccountScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFECF5E3),
       appBar: AppBar(
         backgroundColor: const Color(0xFFECF5E3),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
+          onPressed: () => context.go('/home'),
+        ),
         title: FutureBuilder<String?>(
           future: getCurrentUserName(),
           builder: (context, snapshot) {
