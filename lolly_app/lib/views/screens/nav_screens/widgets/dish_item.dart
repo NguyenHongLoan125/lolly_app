@@ -48,13 +48,16 @@ class _DishItemWidgetState extends State<DishItemWidget> {
       );
       return;
     }
-
+    print("Like");
+    print(_dish);
     if (isLiked) {
       await _controller.unlikeDish(userId, _dish);
       setState(() {
         isLiked = false;
         likeCount = likeCount > 0 ? likeCount - 1 : 0;
       });
+      print("like: ");
+      print(likeCount);
 
     } else {
       await _controller.likeDish(userId, _dish);
@@ -66,6 +69,7 @@ class _DishItemWidgetState extends State<DishItemWidget> {
       print(likeCount);
     }
   }
+
 
 
   @override
@@ -161,7 +165,7 @@ class _DishItemWidgetState extends State<DishItemWidget> {
                       if (snapshot.hasError) {
                         return const Text('Lỗi khi tải nguyên liệu');
                       }
-                      print('DISH ID: ${_dish.id}');
+                      // print('DISH ID: ${_dish.id}');
 
                       final ingredients = snapshot.data ?? [];
 

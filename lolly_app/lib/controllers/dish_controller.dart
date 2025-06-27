@@ -153,18 +153,25 @@ class DishController extends GetxController {
   }
 
   Future<void> unlikeDish(String userId, DishModel dish) async {
-    final newLikeCount = dish.likes > 0 ? dish.likes - 1 : 0;
-
     await _supabase
         .from('favorites')
         .delete()
         .eq('user_id', userId)
         .eq('dish_id', dish.id);
 
+    final result = await _supabase
+        .from('dishes')
+        .select('likes')
+        .eq('id', dish.id)
+        .single();
+
+    final currentLikes = (result['likes'] ?? 0) as int;
+
     await _supabase
         .from('dishes')
-        .update({'likes': newLikeCount})
+        .update({'likes': currentLikes > 0 ? currentLikes - 1 : 0})
         .eq('id', dish.id);
+
   }
 
 

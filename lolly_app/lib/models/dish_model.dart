@@ -42,4 +42,9 @@ class DishModel {
       'user_id': user_id,
     };
   }
+  @override
+  String toString() {
+    return 'DishModel{id: $id, name: $name, imageUrl: $imageUrl, likes: $likes, user_id: $user_id, ingredients: $ingredients}';
+  }
+
 }
