@@ -335,7 +335,8 @@ class _AddDishScreenState extends State<AddDishScreen> {
                       ],
                     ),
                   );
-                }),
+                }
+                ),
               ),
                 const SizedBox(height: 20),
                 TextFormField(
@@ -359,7 +360,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
                         child: const Text('Lưu nháp'),
                       ),
                     ),
-                  ),
+
                   const SizedBox(width: 40),
                   Expanded(
                     child: ElevatedButton(
@@ -369,12 +370,11 @@ class _AddDishScreenState extends State<AddDishScreen> {
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
       ),
     );
-
-  }
+    }
 }
