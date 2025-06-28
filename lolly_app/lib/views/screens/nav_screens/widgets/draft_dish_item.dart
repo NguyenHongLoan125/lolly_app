@@ -214,7 +214,6 @@ class _DraftDishItemWidgetState extends State<DraftDishItemWidget> {
                       children: [
                         TextButton.icon(
                           onPressed: () {
-                            // TODO: Thêm hành động chuyển sang màn chỉnh sửa món ăn
                             Navigator.push(
                               context,
                               MaterialPageRoute(

@@ -258,8 +258,8 @@ class _AddDishScreenState extends State<AddDishScreen> {
     return GestureDetector(
       onTap: pickImage,
       child: Container(
-        height: 250,
-        width: 250,
+        height: 150,
+        width: 200,
         decoration: BoxDecoration(
           color: const Color(0xFFDDEACD),
           borderRadius: BorderRadius.circular(12),
@@ -276,8 +276,19 @@ class _AddDishScreenState extends State<AddDishScreen> {
               : null),
         ),
         child: (selectedImage == null && imageUrlFromServer == null)
-            ? const Icon(Icons.camera_alt, size: 40, color: Colors.black54)
+            ? Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(Icons.camera_alt, size: 40, color: Colors.black54),
+            SizedBox(height: 8),
+            Text(
+              '+ Thêm ảnh',
+              style: TextStyle(color: Colors.black54),
+            ),
+          ],
+        )
             : null,
+
       ),
     );
   }
@@ -330,8 +341,6 @@ class _AddDishScreenState extends State<AddDishScreen> {
           child: Column(
             children: [
               buildImagePicker(),
-              const SizedBox(height: 8),
-              const Text('+ Thêm ảnh', style: TextStyle(color: Colors.black87)),
               const SizedBox(height: 20),
               TextFormField(
                 controller: titleController,
@@ -433,8 +442,15 @@ class _AddDishScreenState extends State<AddDishScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: saveDraft,
-                        style: greenButtonStyle(),
-                        child: const Text('Lưu nháp'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF007400),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text('Lưu nháp',style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
                       ),
                     ),
 
@@ -442,8 +458,15 @@ class _AddDishScreenState extends State<AddDishScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: submitRecipe,
-                      style: greenButtonStyle(),
-                      child: const Text('Đăng'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007400),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: const Text('Đăng',style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),),
                     ),
                   ),
                 ],
