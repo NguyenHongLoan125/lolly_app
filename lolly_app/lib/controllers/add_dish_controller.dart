@@ -10,8 +10,6 @@ class AddDishController {
   Future<String?> uploadImage(File file) async {
     try {
       final String fileName = Uuid().v4();
-
-      // 🔽 Lấy đuôi file gốc từ đường dẫn ảnh
       final String extension = file.path.split('.').last;
       final String filePath = '$fileName.$extension';
 
@@ -36,8 +34,14 @@ class AddDishController {
 
 
 
+
   /// Lưu món ăn mới vào cơ sở dữ liệu
-  Future<void> addDish(RecipeModel recipe, File? imageFile, String userId) async {
+  Future<void> addDish(
+      RecipeModel recipe,
+      File? imageFile,
+      String userId,
+      {required bool isPublished}
+      ) async {
     try {
       // 1. Upload ảnh nếu có
       String? imageUrl;
@@ -55,6 +59,9 @@ class AddDishController {
         'created_at': now,
         'cook': recipe.instructions,
         'notes': recipe.notes,
+        'state': isPublished,
+        'time': recipe.cookTime,
+        'ration': recipe.servings,
       }).select().single();
 
       final dishId = dishResponse['id'];
@@ -77,6 +84,7 @@ class AddDishController {
       rethrow;
     }
   }
+
 
   /// Lấy ID nguyên liệu nếu đã có, chưa có thì thêm mới (kèm created_at)
   Future<String> _getOrCreateIngredientId(String ingredientName, String createdAt) async {

@@ -41,16 +41,27 @@ class _AddDishScreenState extends State<AddDishScreen> {
   }
 
   Future<void> pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      print('📸 Ảnh đã chọn: ${image.path}');
-      setState(() {
-        selectedImage = File(image.path);
-      });
-    } else {
-      print('⚠️ Không chọn ảnh');
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        final file = File(image.path);
+        setState(() {
+          selectedImage = file;
+        });
+        print('📸 Ảnh đã chọn: ${file.path}');
+      } else {
+        print('⚠️ Không chọn ảnh');
+      }
+    } catch (e) {
+      print('❌ Lỗi chọn ảnh: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể chọn ảnh')),
+        );
+      }
     }
   }
+
 
   void addIngredient() {
     setState(() {
@@ -92,7 +103,20 @@ class _AddDishScreenState extends State<AddDishScreen> {
 
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id ?? '';
-      await controller.addDish(recipe, selectedImage, userId);
+
+      // 👉 kiểm tra upload ảnh
+      if (selectedImage != null) {
+        final url = await controller.uploadImage(selectedImage!);
+        if (url == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('❌ Không thể tải ảnh lên.')),
+          );
+          return;
+        }
+      }
+
+      await controller.addDish(recipe, selectedImage, userId, isPublished: true);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('✅ Đã đăng món ăn!')),
@@ -101,10 +125,63 @@ class _AddDishScreenState extends State<AddDishScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Lỗi: $e')),
+        const SnackBar(content: Text('❌ Có lỗi xảy ra khi đăng món ăn.')),
       );
     }
   }
+
+  Future<void> saveDraft() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final List<Ingredient> ingredientList = ingredients
+        .map((item) => Ingredient(
+      name: item['name']!.text.trim(),
+      quantity: item['amount']!.text.trim(),
+    ))
+        .where((ing) => ing.name.isNotEmpty || ing.quantity.isNotEmpty)
+        .toList();
+
+    final recipe = RecipeModel(
+      imageUrl: null,
+      title: titleController.text.trim(),
+      cookTime: selectedTime,
+      difficulty: selectedDifficulty,
+      servings: selectedServing,
+      ingredients: ingredientList,
+      instructions: instructionsController.text.trim(),
+      notes: notesController.text.trim(),
+    );
+
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id ?? '';
+
+      // 👉 kiểm tra upload ảnh
+      if (selectedImage != null) {
+        final url = await controller.uploadImage(selectedImage!);
+        if (url == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('❌ Không thể tải ảnh lên.')),
+          );
+          return;
+        }
+      }
+
+      await controller.addDish(recipe, selectedImage, userId, isPublished: false);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('💾 Đã lưu nháp!')),
+        );
+        context.go('/home');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ Có lỗi xảy ra khi lưu nháp.')),
+      );
+    }
+  }
+
+
 
   Widget buildImagePicker() {
     return GestureDetector(
@@ -279,7 +356,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: saveDraft,
                         style: greenButtonStyle(),
                         child: const Text('Lưu nháp'),
                       ),

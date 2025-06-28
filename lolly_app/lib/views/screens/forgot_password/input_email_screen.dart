@@ -6,7 +6,7 @@ import 'package:lolly_app/views/screens/forgot_password/forgot_pasword_widgets.d
 import 'package:lolly_app/views/screens/forgot_password/vertification_screen.dart';
 import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
 
-class InputEmailScreen extends StatefulWidget {
+class InputEmailScreen  extends StatefulWidget {
   const InputEmailScreen({super.key});
 
   @override
