@@ -8,7 +8,8 @@ import '../../../controllers/add_dish_controller.dart';
 import '../../../models/dishes_model.dart';
 
 class AddDishScreen extends StatefulWidget {
-  const AddDishScreen({super.key});
+  final Map<String, dynamic>? dishData;
+  const AddDishScreen({super.key, this.dishData});
 
   @override
   State<AddDishScreen> createState() => _AddDishScreenState();
@@ -25,6 +26,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
   String selectedTime = '30 phút';
   String selectedDifficulty = 'Trung bình';
   String selectedServing = '1 người';
+  String? imageUrlFromServer;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController instructionsController = TextEditingController();
@@ -37,7 +39,21 @@ class _AddDishScreenState extends State<AddDishScreen> {
   @override
   void initState() {
     super.initState();
+
+
     addIngredient();
+    if (widget.dishData != null) {
+      titleController.text = widget.dishData!['dish_name'] ?? '';
+      instructionsController.text = widget.dishData!['cook'] ?? '';
+      notesController.text = widget.dishData!['notes'] ?? '';
+      selectedTime = widget.dishData!['time'] ?? '30 phút';
+      selectedDifficulty = widget.dishData!['difficulty'] ?? 'Trung bình';
+      selectedServing = widget.dishData!['ration'] ?? '1 người';
+      imageUrlFromServer = widget.dishData!['image_url'];
+
+      Future.microtask(() => loadIngredients(widget.dishData!['id']));
+
+    }
   }
 
   Future<void> pickImage() async {
@@ -48,12 +64,12 @@ class _AddDishScreenState extends State<AddDishScreen> {
         setState(() {
           selectedImage = file;
         });
-        print('📸 Ảnh đã chọn: ${file.path}');
+        print('Ảnh đã chọn: ${file.path}');
       } else {
-        print('⚠️ Không chọn ảnh');
+        print('Không chọn ảnh');
       }
     } catch (e) {
-      print('❌ Lỗi chọn ảnh: $e');
+      print('Lỗi chọn ảnh: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Không thể chọn ảnh')),
@@ -103,32 +119,52 @@ class _AddDishScreenState extends State<AddDishScreen> {
 
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id ?? '';
+      String? imageUrl;
 
-      // 👉 kiểm tra upload ảnh
       if (selectedImage != null) {
-        final url = await controller.uploadImage(selectedImage!);
-        if (url == null) {
+        final uploadedUrl = await controller.uploadImage(selectedImage!);
+        if (uploadedUrl == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('❌ Không thể tải ảnh lên.')),
+            const SnackBar(content: Text('Không thể tải ảnh lên.')),
           );
           return;
         }
+        imageUrl = uploadedUrl;
       }
 
-      await controller.addDish(recipe, selectedImage, userId, isPublished: true);
+      if (widget.dishData != null) {
+        // Chế độ chỉnh sửa: cập nhật
+        final dishId = widget.dishData!['id'];
+
+        await controller.updateDish(
+          dishId: dishId,
+          recipe: recipe,
+          imageUrl: imageUrl,
+          isPublished: true,
+        );
+      } else {
+        // Chế độ thêm mới
+        await controller.addDish(
+          recipe,
+          selectedImage,
+          userId,
+          isPublished: true,
+        );
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Đã đăng món ăn!')),
+          const SnackBar(content: Text('Món ăn đã được đăng!')),
         );
         context.go('/home');
       }
-    } catch (e) {
+    } catch (e, stack) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ Có lỗi xảy ra khi đăng món ăn.')),
+        const SnackBar(content: Text('Có lỗi xảy ra khi đăng món ăn.')),
       );
-    }
-  }
+    }}
+
+
 
   Future<void> saveDraft() async {
     if (!_formKey.currentState!.validate()) return;
@@ -154,31 +190,66 @@ class _AddDishScreenState extends State<AddDishScreen> {
 
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id ?? '';
+      String? imageUrl;
 
-      // 👉 kiểm tra upload ảnh
       if (selectedImage != null) {
-        final url = await controller.uploadImage(selectedImage!);
-        if (url == null) {
+        final uploadedUrl = await controller.uploadImage(selectedImage!);
+        if (uploadedUrl == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('❌ Không thể tải ảnh lên.')),
+            const SnackBar(content: Text('Không thể tải ảnh lên.')),
           );
           return;
         }
+        imageUrl = uploadedUrl;
       }
 
-      await controller.addDish(recipe, selectedImage, userId, isPublished: false);
+      if (widget.dishData != null) {
+        final dishId = widget.dishData!['id'];
+        await controller.updateDish(
+          dishId: dishId,
+          recipe: recipe,
+          imageUrl: imageUrl,
+          isPublished: false, // ⬅️ quan trọng: state = false để là bản nháp
+        );
+      } else {
+        await controller.addDish(
+          recipe,
+          selectedImage,
+          userId,
+          isPublished: false,
+        );
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('💾 Đã lưu nháp!')),
+          const SnackBar(content: Text('Đã lưu nháp!')),
         );
         context.go('/home');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ Có lỗi xảy ra khi lưu nháp.')),
+        const SnackBar(content: Text('Có lỗi xảy ra khi lưu nháp.')),
       );
     }
+  }
+
+  Future<void> loadIngredients(String dishId) async {
+    final response = await Supabase.instance.client
+        .from('dish_ingredients')
+        .select('quantity, ingredients(ingredient_name)')
+        .eq('dish_id', dishId);
+
+    setState(() {
+      ingredients.clear();
+      for (final item in response) {
+        final name = item['ingredients']['ingredient_name'] ?? '';
+        final quantity = item['quantity'] ?? '';
+        ingredients.add({
+          'name': TextEditingController(text: name),
+          'amount': TextEditingController(text: quantity.toString()),
+        });
+      }
+    });
   }
 
 
@@ -195,16 +266,22 @@ class _AddDishScreenState extends State<AddDishScreen> {
           image: selectedImage != null
               ? DecorationImage(
             image: FileImage(selectedImage!),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
           )
-              : null,
+              : (imageUrlFromServer != null
+              ? DecorationImage(
+            image: NetworkImage(imageUrlFromServer!),
+            fit: BoxFit.fill,
+          )
+              : null),
         ),
-        child: selectedImage == null
+        child: (selectedImage == null && imageUrlFromServer == null)
             ? const Icon(Icons.camera_alt, size: 40, color: Colors.black54)
             : null,
       ),
     );
   }
+
 
   InputDecoration inputDecoration(String label) {
     return InputDecoration(

@@ -57,6 +57,7 @@ class AddDishController {
         'image_url': imageUrl,
         'user_id': userId,
         'created_at': now,
+        'difficulty': recipe.difficulty,
         'cook': recipe.instructions,
         'notes': recipe.notes,
         'state': isPublished,
@@ -78,9 +79,9 @@ class AddDishController {
         });
       }
 
-      print('✅ Lưu công thức thành công!');
+      print('Lưu công thức thành công!');
     } catch (e) {
-      print('❌ Lỗi khi lưu công thức: $e');
+      print('Lỗi khi lưu công thức: $e');
       rethrow;
     }
   }
@@ -108,4 +109,47 @@ class AddDishController {
       return inserted['ingredient_id'] as String;
     }
   }
+  Future<void> updateDish({
+    required String dishId,
+    required RecipeModel recipe,
+    String? imageUrl,
+    bool isPublished = false,
+  }) async {
+    final data = {
+      'dish_name': recipe.title,
+      'time': recipe.cookTime,
+      'difficulty': recipe.difficulty,
+      'ration': recipe.servings,
+      'cook': recipe.instructions,
+      'notes': recipe.notes,
+      'state': isPublished,
+    };
+
+    if (imageUrl != null) {
+      data['image_url'] = imageUrl;
+    }
+
+    await Supabase.instance.client
+        .from('dishes')
+        .update(data)
+        .eq('id', dishId);
+
+    // Xoá nguyên liệu cũ
+    await Supabase.instance.client
+        .from('dish_ingredients')
+        .delete()
+        .eq('dish_id', dishId);
+    final now = DateTime.now().toUtc().toIso8601String();
+    // Thêm nguyên liệu mới
+    for (final ing in recipe.ingredients) {
+      final ingredientId = await _getOrCreateIngredientId(ing.name, now);
+      await Supabase.instance.client.from('dish_ingredients').insert({
+        'dish_id': dishId,
+        'ingredient_id': ingredientId,
+        'quantity': ing.quantity,
+        'created_at': now,
+      });
+    }
+  }
+
 }
