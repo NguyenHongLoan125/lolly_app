@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/dish_item.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/draft_dish_item.dart';
 
 class DraftScreen extends StatefulWidget {
   const DraftScreen({super.key});
@@ -112,7 +113,7 @@ class _DraftScreenState extends State<DraftScreen> {
                         print(dishData);
                         return Padding(
                           padding: const EdgeInsets.only(right: 12.0, bottom: 12),
-                          child: DishItemWidget(dishData: dishData),
+                          child: DraftDishItemWidget(dishData: dishData),
                         );
 
                       },
