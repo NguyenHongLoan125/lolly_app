@@ -6,6 +6,7 @@ import 'package:lolly_app/views/screens/forgot_password/input_email_screen.dart'
 import 'package:lolly_app/views/screens/forgot_password/new_password_screen.dart';
 import 'package:lolly_app/views/screens/forgot_password/vertification_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/category_dish_screen.dart';
+import 'package:lolly_app/views/screens/inner_screens/draft_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/favorite_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/posted_dish_screen.dart';
 import 'package:lolly_app/views/screens/login_sigup_screen/login.dart';
@@ -128,6 +129,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/favorites',
       builder: (context, state) => FavoriteScreen(),
+    ),
+    GoRoute(
+      path: '/draft',
+      builder: (context, state) => DraftScreen(),
     ),
     GoRoute(
       path: '/posted',
