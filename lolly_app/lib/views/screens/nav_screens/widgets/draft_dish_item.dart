@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/controllers/menu_controller.dart';
 import 'package:lolly_app/models/dish_model.dart';
+import 'package:lolly_app/views/screens/nav_screens/add_dish_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../models/ingredient_model.dart';
 
@@ -47,22 +48,28 @@ class _DraftDishItemWidgetState extends State<DraftDishItemWidget> {
       );
       return;
     }
-
+    print("Like");
+    print(_dish);
     if (isLiked) {
       await _controller.unlikeDish(userId, _dish);
       setState(() {
         isLiked = false;
         likeCount = likeCount > 0 ? likeCount - 1 : 0;
       });
-
-    } else {
-      await _controller.likeDish(userId, _dish);
-      setState(() {
-        isLiked = true;
-        likeCount += 1;
-      });
       print("like: ");
       print(likeCount);
+    } else {
+      final success = await _controller.likeDish(userId, _dish);
+      if (success) {
+        setState(() {
+          isLiked = true;
+          likeCount += 1;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể yêu thích món ăn này.')),
+        );
+      }
     }
   }
 
@@ -208,12 +215,13 @@ class _DraftDishItemWidgetState extends State<DraftDishItemWidget> {
                         TextButton.icon(
                           onPressed: () {
                             // TODO: Thêm hành động chuyển sang màn chỉnh sửa món ăn
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (_) => EditDishScreen(dishData: widget.dishData), // tùy bạn đặt tên
-                            //   ),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AddDishScreen(dishData: widget.dishData),
+                              ),
+                            );
+
                           },
                           icon: const Icon(Icons.edit,color: Color(0xFF007400)),
                           label: const Text("Chỉnh sửa",style: TextStyle(color: Color(0xFF007400), fontWeight: FontWeight.bold),),
