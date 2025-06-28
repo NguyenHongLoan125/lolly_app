@@ -151,154 +151,153 @@ class _AddDishScreenState extends State<AddDishScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Công thức nấu ăn',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color(0xff007400),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: const Color(0xffECF5E3),
-          leading: IconButton(
-            onPressed: () => context.go('/home'),
-            icon: const Icon(Icons.arrow_back, color: Color(0xff007400), size: 50),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Công thức nấu ăn',
+          style: TextStyle(
+            fontSize: 20,
+            color: Color(0xff007400),
+            fontWeight: FontWeight.bold,
           ),
         ),
+        centerTitle: true,
         backgroundColor: const Color(0xffECF5E3),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                buildImagePicker(),
-                const SizedBox(height: 8),
-                const Text('+ Thêm ảnh', style: TextStyle(color: Colors.black87)),
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: titleController,
-                  decoration: inputDecoration('Tên công thức'),
-                  validator: (val) => val == null || val.isEmpty ? 'Nhập tên công thức' : null,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        decoration: inputDecoration('Thời gian nấu'),
-                        value: selectedTime,
-                        items: cookingTimes
-                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                            .toList(),
-                        onChanged: (val) => setState(() => selectedTime = val!),
-                      ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
+          onPressed: () => context.go('/home'),
+        ),
+      ),
+      backgroundColor: const Color(0xffECF5E3),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              buildImagePicker(),
+              const SizedBox(height: 8),
+              const Text('+ Thêm ảnh', style: TextStyle(color: Colors.black87)),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: titleController,
+                decoration: inputDecoration('Tên công thức'),
+                validator: (val) => val == null || val.isEmpty ? 'Nhập tên công thức' : null,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      decoration: inputDecoration('Thời gian nấu'),
+                      value: selectedTime,
+                      items: cookingTimes
+                          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                          .toList(),
+                      onChanged: (val) => setState(() => selectedTime = val!),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        decoration: inputDecoration('Độ khó'),
-                        value: selectedDifficulty,
-                        items: difficultyLevels
-                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                            .toList(),
-                        onChanged: (val) => setState(() => selectedDifficulty = val!),
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      decoration: inputDecoration('Độ khó'),
+                      value: selectedDifficulty,
+                      items: difficultyLevels
+                          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                          .toList(),
+                      onChanged: (val) => setState(() => selectedDifficulty = val!),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  decoration: inputDecoration('Khẩu phần'),
-                  value: selectedServing,
-                  items: servingsList
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                      .toList(),
-                  onChanged: (val) => setState(() => selectedServing = val!),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    const Text('Nguyên liệu', style: TextStyle(fontSize: 16)),
-                    const Spacer(),
-                    IconButton(onPressed: addIngredient, icon: const Icon(Icons.add)),
-                  ],
-                ),
-                Column(
-                  children: List.generate(ingredients.length, (index) {
-                    final item = ingredients[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: TextFormField(
-                              controller: item['name'],
-                              decoration: inputDecoration('Nguyên liệu'),
-                            ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                decoration: inputDecoration('Khẩu phần'),
+                value: selectedServing,
+                items: servingsList
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (val) => setState(() => selectedServing = val!),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const Text('Nguyên liệu', style: TextStyle(fontSize: 16)),
+                  const Spacer(),
+                  IconButton(onPressed: addIngredient, icon: const Icon(Icons.add)),
+                ],
+              ),
+              Column(
+                children: List.generate(ingredients.length, (index) {
+                  final item = ingredients[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: TextFormField(
+                            controller: item['name'],
+                            decoration: inputDecoration('Nguyên liệu'),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 1,
-                            child: TextFormField(
-                              controller: item['amount'],
-                              decoration: inputDecoration('Số lượng'),
-                            ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 1,
+                          child: TextFormField(
+                            controller: item['amount'],
+                            decoration: inputDecoration('Số lượng'),
                           ),
-                          const SizedBox(width: 8),
-                          if (ingredients.length > 1)
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle, color: Colors.red),
-                              onPressed: () => removeIngredient(index),
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (ingredients.length > 1)
+                          IconButton(
+                            icon: const Icon(Icons.remove_circle, color: Colors.red),
+                            onPressed: () => removeIngredient(index),
+                          ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
 
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: instructionsController,
-                  maxLines: 5,
-                  decoration: inputDecoration('Hướng dẫn'),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: notesController,
-                  decoration: inputDecoration('Ghi chú:'),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: greenButtonStyle(),
-                        child: const Text('Lưu nháp'),
-                      ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: instructionsController,
+                maxLines: 5,
+                decoration: inputDecoration('Hướng dẫn'),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: notesController,
+                decoration: inputDecoration('Ghi chú:'),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: greenButtonStyle(),
+                      child: const Text('Lưu nháp'),
                     ),
-                    const SizedBox(width: 40),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: submitRecipe,
-                        style: greenButtonStyle(),
-                        child: const Text('Đăng'),
-                      ),
+                  ),
+                  const SizedBox(width: 40),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: submitRecipe,
+                      style: greenButtonStyle(),
+                      child: const Text('Đăng'),
                     ),
-                  ],
-                )
-              ],
-            ),
+                  ),
+                ],
+              )
+            ],
           ),
         ),
       ),
     );
+
   }
 }

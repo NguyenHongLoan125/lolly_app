@@ -146,6 +146,12 @@ class DishController extends GetxController {
   }
 
 
+  Future<void> postDish(String dishId) async {
+    await Supabase.instance.client
+        .from('dishes')
+        .update({'state': true})
+        .eq('id', dishId);
+  }
 
   Future<List<String>> fetchSubCategories(String categoryName) async {
     final List<Map<String, dynamic>> data = await _supabase

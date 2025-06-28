@@ -111,10 +111,7 @@ final GoRouter router = GoRouter(
           path: '/calendar',
           pageBuilder: (context, state) =>  NoTransitionPage(child: CalendarScreen()),
         ),
-        GoRoute(
-          path: '/add',
-          pageBuilder: (context, state) =>  NoTransitionPage(child: AddDishScreen()),
-        ),
+
         GoRoute(
           path: '/shopping',
           pageBuilder: (context, state) =>  NoTransitionPage(child: ShoppingScreen()),
@@ -125,6 +122,10 @@ final GoRouter router = GoRouter(
         ),
 
       ],
+    ),
+    GoRoute(
+      path: '/add',
+      builder: (context, state) => AddDishScreen(),
     ),
     GoRoute(
       path: '/favorites',
