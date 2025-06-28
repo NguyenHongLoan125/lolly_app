@@ -58,18 +58,20 @@ class _DishItemWidgetState extends State<DishItemWidget> {
       });
       print("like: ");
       print(likeCount);
-
     } else {
-      await _controller.likeDish(userId, _dish);
-      setState(() {
-        isLiked = true;
-        likeCount += 1;
-      });
-      print("like: ");
-      print(likeCount);
+      final success = await _controller.likeDish(userId, _dish);
+      if (success) {
+        setState(() {
+          isLiked = true;
+          likeCount += 1;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể yêu thích món ăn này.')),
+        );
+      }
     }
   }
-
 
 
   @override

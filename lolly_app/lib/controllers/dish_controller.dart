@@ -10,6 +10,7 @@ class DishController extends GetxController {
     return _supabase
         .from('dishes')
         .select('*, dish_sub_categories(categories, sub_categories(sub_category_name))')
+        .eq('state', true)
         .order('created_at', ascending: false)
         .asStream()
         .handleError((error, stackTrace) {
@@ -22,6 +23,7 @@ class DishController extends GetxController {
     return _supabase
         .from('dishes')
         .select('*, dish_sub_categories(categories, sub_categories(*, categories(id, category_name)))')
+        .eq('state', true)
         .order('created_at', ascending: false)
         .asStream();
   }
@@ -51,6 +53,7 @@ class DishController extends GetxController {
         .from('favorites')
         .select('dish_id, dishes(*, dish_sub_categories(categories, sub_categories(sub_category_name)))')
         .eq('user_id', userId)
+        .eq('dishes.state', true)
         .order('created_at', ascending: false)
         .asStream()
         .handleError((error, stackTrace) {
@@ -73,6 +76,7 @@ class DishController extends GetxController {
         .from('dishes')
         .select('*, dish_sub_categories(categories, sub_categories(sub_category_name))')
         .eq('user_id', userId)
+        .eq('state', true)
         .order('created_at', ascending: false)
         .asStream()
         .handleError((error, stackTrace) {
@@ -80,7 +84,28 @@ class DishController extends GetxController {
       print('>>> STACK TRACE: $stackTrace');
     });
   }
+  Stream<List<Map<String, dynamic>>> getMyDraftStream() {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) {
+      print('>>> currentUser bị null');
+      return Stream.value([]);
+    }
 
+    final userId = user.id;
+    print('>>> USER ID: $userId');
+
+    return Supabase.instance.client
+        .from('dishes')
+        .select('*, dish_sub_categories(categories, sub_categories(sub_category_name))')
+        .eq('user_id', userId)
+        .eq('state', false)
+        .order('created_at', ascending: false)
+        .asStream()
+        .handleError((error, stackTrace) {
+      print('>>> LỖI TRONG getMyDishesStream: $error');
+      print('>>> STACK TRACE: $stackTrace');
+    });
+  }
   Stream<List<Map<String, dynamic>>> getDishesFromMenusByDate(DateTime date) {
     final start = DateTime.utc(date.year, date.month, date.day);
     final end = start.add(const Duration(days: 1));
@@ -133,14 +158,27 @@ class DishController extends GetxController {
   Future<bool> isLikedByUser(String userId, String dishId) async {
     final response = await _supabase
         .from('favorites')
-        .select('id')
+        .select('id, dishes(state)') // join thêm cột state từ bảng dishes
         .eq('user_id', userId)
         .eq('dish_id', dishId)
+        .eq('dishes.state', true) // lọc theo state trong bảng dishes
         .maybeSingle();
+
     return response != null;
   }
 
-  Future<void> likeDish(String userId, DishModel dish) async {
+  Future<bool> likeDish(String userId, DishModel dish) async {
+    final dishResponse = await _supabase
+        .from('dishes')
+        .select('state')
+        .eq('id', dish.id)
+        .maybeSingle();
+
+    if (dishResponse == null || dishResponse['state'] != true) {
+      print('❌ Không thể like vì state != true');
+      return false;
+    }
+
     await _supabase.from('favorites').insert({
       'user_id': userId,
       'dish_id': dish.id,
@@ -150,7 +188,11 @@ class DishController extends GetxController {
         .from('dishes')
         .update({'likes': dish.likes + 1})
         .eq('id', dish.id);
+
+    return true;
   }
+
+
 
   Future<void> unlikeDish(String userId, DishModel dish) async {
     await _supabase

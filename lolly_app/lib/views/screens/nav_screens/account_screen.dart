@@ -56,7 +56,7 @@ class AccountScreen extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        // context.push('/favorites');
+                        context.push('/draft');
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
