@@ -194,7 +194,6 @@ class DishController extends GetxController {
 
         final cName = category['category_name'];
         final scName = subCategory['sub_category_name'];
-
         if (cName == categoryName) {
           if (subCategoryName != null) {
             if (scName == subCategoryName) return true;
