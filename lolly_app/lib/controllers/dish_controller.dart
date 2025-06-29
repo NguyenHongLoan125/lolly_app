@@ -11,6 +11,7 @@ class DishController extends GetxController {
         .from('dishes')
         .select('*, dish_sub_categories(categories, sub_categories(sub_category_name))')
         .eq('state', true)
+        .order('likes', ascending: false)
         .order('created_at', ascending: false)
         .asStream()
         .handleError((error, stackTrace) {
@@ -151,6 +152,18 @@ class DishController extends GetxController {
         .from('dishes')
         .update({'state': true})
         .eq('id', dishId);
+  }
+  Future<void> deteteDish(String dishId) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('dishes')
+          .delete()
+          .eq('id', dishId);
+      print('Xóa thành công: $response');
+
+    } catch (error) {
+      print('Lỗi xảy ra: $error');
+    }
   }
 
   Future<List<String>> fetchSubCategories(String categoryName) async {

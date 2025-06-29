@@ -28,31 +28,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       futureIngredients = fetchIngredientsByDate(date);
     });
 
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return;
-
-    final dateStr = date.toIso8601String().substring(0, 10);
-
-    try {
-      final response = await Supabase.instance.client
-          .from('checked_ingredients')
-          .select()
-          .eq('user_id', user.id)
-          .eq('date', dateStr);
-
-      final Map<String, bool> newStatus = {};
-      for (final item in response) {
-        final name = item['ingredient_name'];
-        final isChecked = item['is_checked'] ?? false;
-        newStatus['${name}_$dateStr'] = isChecked;
-      }
-
-      setState(() {
-        checkedStatus = newStatus;
-      });
-    } catch (e) {
-      print('Lỗi khi tải trạng thái check: $e');
-    }
+    final newStatus = await fetchCheckedStatusByDate(date);
+    setState(() {
+      checkedStatus = newStatus;
+    });
   }
 
   void saveCheckedStatus({
@@ -65,19 +44,14 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
     final dateStr = date.toIso8601String().substring(0, 10);
 
-    try {
-      await Supabase.instance.client
-          .from('checked_ingredients')
-          .upsert({
-        'user_id': user.id,
-        'ingredient_name': ingredientName,
-        'is_checked': isChecked,
-        'date': dateStr,
-      }, onConflict: 'user_id, ingredient_name, date');
-    } catch (e) {
-      print('Lỗi khi lưu trạng thái: $e');
-    }
+    await saveCheckedStatusToDb(
+      userId: user.id,
+      ingredientName: ingredientName,
+      isChecked: isChecked,
+      dateStr: dateStr,
+    );
   }
+
 
   @override
   Widget build(BuildContext context) {
