@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lolly_app/controllers/category_controller.dart';
-import 'package:lolly_app/views/screens/inner_screens/category_dish_screen.dart';
 
 class CategoryItem extends StatefulWidget {
   const CategoryItem({super.key});
@@ -18,56 +17,51 @@ class _CategoryItemState extends State<CategoryItem> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // Chiều cao cố định để hiển thị tối đa 2 hàng
-      final gridHeight = 120.0;
-
       return SizedBox(
-        height: gridHeight,
-        child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
+        height: 120,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
           itemCount: _categoryController.categories.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 72 / 100, // cao hơn icon để vừa chữ
-          ),
+          padding: const EdgeInsets.only(top: 20,left: 5),
+          separatorBuilder: (_, __) => const SizedBox(width: 10),
           itemBuilder: (context, index) {
             final category = _categoryController.categories[index];
             return InkWell(
               onTap: () {
-                // Navigator.push(context,
-                //     MaterialPageRoute(builder: (context){
-                //       return CategoryDishScreen(categoryModel: _categoryController.categories[index],);
-                //     }));
-                final categoryName = category.category_name;
-                context.go('/home/$categoryName', extra: category);
+                context.go('/home/${category.category_name}', extra: category);
               },
-              child: Column(
-                children: [
-                  Image.network(
-                    category.category_image,
-                    width: 72,
-                    height: 72,
-                    fit: BoxFit.cover,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    category.category_name,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.quicksand(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+              child: SizedBox(
+                width: 85,
+                child: Column(
+                  children: [
+                    Image.network(
+                      category.category_image,
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.cover,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      height: 35, // đủ cho 2 dòng text nhỏ
+                      child: Text(
+                        category.category_name,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.quicksand(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
         ),
       );
+
     });
   }
 }
