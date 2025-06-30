@@ -1,23 +1,47 @@
+class UserModel {
+  String? userId;
+  String? firstname;
+  String? lastname;
+  String? email;
+  String? address;
+  String? gender;
+  String? introduction;
+  String? profileImage;
 
-class User{
-  String ? username;
-  String ? firstname;
-  String ? lastname;
-  String ? email;
-  String ? address;
-  String ? gender;
-  String ? introduction;
-  String ? profileImage;
-  String ? _password;
+  UserModel({
+    this.userId,
+    this.firstname,
+    this.lastname,
+    this.email,
+    this.address,
+    this.gender,
+    this.introduction,
+    this.profileImage,
+  });
 
-
-  String ? get passWord => _password;
-
-  set passWord(String ? value) {
-    _password = value;
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      userId: map['user_id'],
+      firstname: map['firstname'],
+      lastname: map['lastname'],
+      email: map['email'],
+      address: map['address'],
+      gender: map['gender'],
+      introduction: map['introduction'],
+      profileImage: map['profile_image'],
+    );
   }
 
-  User(this.username, this.firstname, this.lastname, this.email, this.address,
-      this.gender, this.introduction, this.profileImage,this._password);
-
+  Map<String, dynamic> toMap() {
+    return {
+      'user_id': userId,
+      'firstname': firstname,
+      'lastname': lastname,
+      'email': email,
+      'address': address,
+      'gender': gender,
+      'introduction': introduction,
+      'profile_image': profileImage,
+    };
+  }
 }

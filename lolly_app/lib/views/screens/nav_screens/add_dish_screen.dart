@@ -22,6 +22,14 @@ class _AddDishScreenState extends State<AddDishScreen> {
   final List<String> cookingTimes = ['15 phút', '30 phút', '1 giờ'];
   final List<String> difficultyLevels = ['Dễ', 'Trung bình', 'Khó'];
   final List<String> servingsList = ['1 người', '2 người', '4 người'];
+  final List<String> cuisineTypes = ['Việt Nam', 'Hàn Quốc', 'Nhật Bản', 'Thái Lan','Pháp'];
+  final List<String> dishTypes = ['Món chính', 'Món phụ', 'Tráng miệng'];
+  final List<String> dietaryTypes = ['Eat Clean', 'Thuần chay', 'Detox', 'DASH'];
+
+  String selectedCuisine = 'Việt Nam';
+  String selectedDishType = 'Món chính';
+  String selectedDiet = 'Thuần chay';
+
 
   String selectedTime = '30 phút';
   String selectedDifficulty = 'Trung bình';
@@ -186,6 +194,9 @@ class _AddDishScreenState extends State<AddDishScreen> {
       ingredients: ingredientList,
       instructions: instructionsController.text.trim(),
       notes: notesController.text.trim(),
+      cuisineType: selectedCuisine,
+      dishType: selectedDishType,
+      dietaryType: selectedDiet,
     );
 
     try {
@@ -383,6 +394,31 @@ class _AddDishScreenState extends State<AddDishScreen> {
                 onChanged: (val) => setState(() => selectedServing = val!),
               ),
               const SizedBox(height: 20),
+
+              DropdownButtonFormField<String>(
+                decoration: inputDecoration('Loại ẩm thực'),
+                value: selectedCuisine,
+                items: cuisineTypes.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (val) => setState(() => selectedCuisine = val!),
+              ),
+
+              const SizedBox(height: 20),
+              DropdownButtonFormField<String>(
+                decoration: inputDecoration('Loại món ăn'),
+                value: selectedDishType,
+                items: dishTypes.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (val) => setState(() => selectedDishType = val!),
+              ),
+
+              const SizedBox(height: 20),
+              DropdownButtonFormField<String>(
+                decoration: inputDecoration('Chế độ ăn'),
+                value: selectedDiet,
+                items: dietaryTypes.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                onChanged: (val) => setState(() => selectedDiet = val!),
+              ),
+              const SizedBox(height: 20),
+
               Row(
                 children: [
                   const Text('Nguyên liệu', style: TextStyle(fontSize: 16)),

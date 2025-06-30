@@ -148,32 +148,37 @@ class AccountScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const SizedBox(width: 20),
-                            const Icon(Icons.manage_accounts, color: Color(0xFF007400)),
-                            const SizedBox(width: 40),
-                            Text(
-                              'Chỉnh sửa hồ sơ',
-                              style: GoogleFonts.roboto(
-                                fontSize: 20,
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 1,
+                    GestureDetector(
+                      onTap: (){
+                        context.push('/edit-profile');
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const SizedBox(width: 20),
+                              const Icon(Icons.manage_accounts, color: Color(0xFF007400)),
+                              const SizedBox(width: 40),
+                              Text(
+                                'Chỉnh sửa hồ sơ',
+                                style: GoogleFonts.roboto(
+                                  fontSize: 20,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 1,
+                                ),
                               ),
-                            ),
 
-                          ],
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(right: 20),
-                          child: const Icon(Icons.arrow_forward_ios, size: 18, color:  Color(0xFF007400)),
-                        ),
-                      ],
-                    ),
+                            ],
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 20),
+                            child: const Icon(Icons.arrow_forward_ios, size: 18, color:  Color(0xFF007400)),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               )
