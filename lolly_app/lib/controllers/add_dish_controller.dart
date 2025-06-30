@@ -63,6 +63,9 @@ class AddDishController {
         'state': isPublished,
         'time': recipe.cookTime,
         'ration': recipe.servings,
+        'cuisine_type': recipe.cuisineType,
+        'dish_type': recipe.dishType,
+        'dietary_type': recipe.dietaryType,
       }).select().single();
 
       final dishId = dishResponse['id'];

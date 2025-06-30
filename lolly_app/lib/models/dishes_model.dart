@@ -14,6 +14,9 @@ class RecipeModel {
   List<Ingredient> ingredients;
   String instructions;
   String notes;
+  final String? cuisineType;
+  final String? dishType;
+  final String? dietaryType;
 
   RecipeModel({
     this.imageUrl,
@@ -24,6 +27,9 @@ class RecipeModel {
     required this.ingredients,
     required this.instructions,
     required this.notes,
+    this.cuisineType,
+    this.dishType,
+    this.dietaryType
   });
 }
 
