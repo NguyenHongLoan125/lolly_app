@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lolly_app/controllers/authentication_controller.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
 
@@ -178,7 +179,73 @@ class AccountScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    )
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () async {
+                        final shouldLogout = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Xác nhận đăng xuất'),
+                            content: const Text('Bạn có chắc chắn muốn đăng xuất không?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('Hủy'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                child: const Text(
+                                  'Đăng xuất',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (shouldLogout == true) {
+                          try {
+                            await Supabase.instance.client.auth.signOut();
+                            if (context.mounted) {
+                              context.go('/login'); // ← thay bằng route đăng nhập của bạn nếu khác
+                            }
+                          } catch (e) {
+                            print('Lỗi khi đăng xuất: $e');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Đăng xuất thất bại')),
+                            );
+                          }
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const SizedBox(width: 20),
+                              const Icon(Icons.logout, color: Color(0xFF007400)),
+                              const SizedBox(width: 40),
+                              Text(
+                                'Đăng xuất',
+                                style: GoogleFonts.roboto(
+                                  fontSize: 20,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 20),
+                            child: Icon(Icons.arrow_forward_ios, size: 18, color: Color(0xFF007400)),
+                          ),
+                        ],
+                      ),
+                    ),
+
+
                   ],
                 ),
               )
