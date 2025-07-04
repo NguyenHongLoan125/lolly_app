@@ -21,8 +21,10 @@ class CategoryController extends GetxController {
         .listen((List<Map<String, dynamic>> data) {
       categories.assignAll(data.map((doc) {
         return CategoryModel(
+          id: doc['id'],
           category_name: doc['category_name'],
           category_image: doc['category_image'],
+          is_required: doc['is_required']
         );
       }).toList());
     });
@@ -38,8 +40,10 @@ class CategoryController extends GetxController {
     if (response == null) return null;
 
     return CategoryModel(
+      id: response['id'],
       category_name: response['category_name'],
       category_image: response['category_image'],
+      is_required: response['is_required']
     );
   }
 
