@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lolly_app/controllers/dish_controller.dart';
+import 'package:lolly_app/views/screens/inner_screens/detail_dish_screen.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/dish_item.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -62,15 +64,23 @@ class _PopularDishesWidgetState extends State<PopularDishesWidget> {
           delegate: SliverChildBuilderDelegate(
                 (context, index) {
               final dishData = dishes[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 12.0, bottom: 12),
-                child: DishItemWidget(dishData: dishData),
-              );
 
+              return GestureDetector(
+                onTap: () {
+                  context.go('/dish/${dishData['id']}');
+                  // print("chọn món có id: ");
+                  // print(dishData['id']);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12.0, bottom: 20),
+                  child: DishItemWidget(dishData: dishData),
+                ),
+              );
             },
             childCount: dishes.length,
           ),
         );
+
       },
     );
   }

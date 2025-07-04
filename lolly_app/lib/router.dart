@@ -6,6 +6,7 @@ import 'package:lolly_app/views/screens/forgot_password/input_email_screen.dart'
 import 'package:lolly_app/views/screens/forgot_password/new_password_screen.dart';
 import 'package:lolly_app/views/screens/forgot_password/vertification_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/category_dish_screen.dart';
+import 'package:lolly_app/views/screens/inner_screens/detail_dish_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/draft_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/edit_profile_screen.dart';
 import 'package:lolly_app/views/screens/inner_screens/favorite_screen.dart';
@@ -41,11 +42,9 @@ Future<String?> _appRedirect(BuildContext context, GoRouterState state) async {
   if (!loggedIn && !isInUnauthenticatedPage) {
     return '/login'; // Bắt buộc đăng nhập
   }
-
   if (loggedIn && location == '/login') {
     return '/home'; // Đã đăng nhập mà vào login thì chuyển về home
   }
-
   return null; // Cho phép truy cập bình thường
 }
 
@@ -169,6 +168,15 @@ final GoRouter router = GoRouter(
       path: '/sign_up',
       builder: (context, state) => const SignUpScreen(),
     ),
+    GoRoute(
+      path: '/dish/:id',
+      builder: (context, state) {
+        final dishId = state.pathParameters['id']!;
+        return DishDetailScreen(dishId: dishId);
+      },
+    ),
+
+
   ],
   errorPageBuilder: (context, state) {
       return MaterialPage(
