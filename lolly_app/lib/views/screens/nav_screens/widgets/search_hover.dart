@@ -37,9 +37,16 @@ class _SearchTapWidgetState extends State<SearchTapWidget> {
         MaterialPageRoute(
           builder: (context) => SearchResultScreen(keyword: keyword),
         ),
-      );
+      ).then((_) {
+        // Xóa text và đóng search khi quay về
+        setState(() {
+          _controller.clear();
+          _isSearching = false;
+        });
+      });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

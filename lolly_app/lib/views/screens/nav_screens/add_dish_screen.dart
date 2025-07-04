@@ -595,14 +595,16 @@ class _AddDishScreenState extends State<AddDishScreen> {
                 ),
               ),
                 const SizedBox(height: 20),
-                TextFormField(
-                  controller: instructionsController,
-                  maxLines: 5,
-                  decoration: inputDecoration('Hướng dẫn'),
-                ),
-                const SizedBox(height: 12),
+              TextFormField(
+                controller: instructionsController,
+                minLines: 2,
+                maxLines: null,
+                decoration: inputDecoration('Hướng dẫn',),
+              ),
+              const SizedBox(height: 12),
                 TextFormField(
                   controller: notesController,
+                  maxLines: null,
                   decoration: inputDecoration('Ghi chú:'),
                 ),
                 const SizedBox(height: 20),

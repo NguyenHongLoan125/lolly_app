@@ -128,8 +128,7 @@ class _DraftDishItemWidgetState extends State<DraftDishItemWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
+                      Expanded(
                         child: Text(
                           _dish.name,
                           style: GoogleFonts.lato(
@@ -137,6 +136,7 @@ class _DraftDishItemWidgetState extends State<DraftDishItemWidget> {
                             fontWeight: FontWeight.bold,
                             color: const Color(0xFF1E3354),
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       GestureDetector(

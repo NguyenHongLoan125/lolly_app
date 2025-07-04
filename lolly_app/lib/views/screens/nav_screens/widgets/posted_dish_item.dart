@@ -127,8 +127,7 @@ class _PostedDishItemWidgetState extends State<PostedDishItemWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
+                      Expanded(
                         child: Text(
                           _dish.name,
                           style: GoogleFonts.lato(
@@ -136,6 +135,7 @@ class _PostedDishItemWidgetState extends State<PostedDishItemWidget> {
                             fontWeight: FontWeight.bold,
                             color: const Color(0xFF1E3354),
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       GestureDetector(

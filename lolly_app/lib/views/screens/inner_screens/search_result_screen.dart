@@ -1,3 +1,4 @@
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/dish_item.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,7 +24,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   }
 
   Future<void> _searchDishes(String keyword) async {
-    final lowerKeyword = keyword.toLowerCase();
+    final lowerKeyword = removeDiacritics(keyword.toLowerCase());
 
     // 1. Lấy tất cả món ăn
     final dishesResponse = await supabase.from('dishes').select();
@@ -39,7 +40,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
 
     // 4. Lọc các món theo keyword
     final filtered = dishes.where((dish) {
-      final dishName = dish['dish_name'].toString().toLowerCase();
+      final dishName = removeDiacritics(dish['dish_name'].toString().toLowerCase());
       if (dishName.contains(lowerKeyword)) return true;
 
       // Lấy các nguyên liệu liên quan đến món này
@@ -53,7 +54,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
               (i) => i['ingredient_id'] == ingId,
           orElse: () => {},
         );
-        final ingName = ing['ingredient_name']?.toString().toLowerCase() ?? '';
+        final ingName = removeDiacritics(ing['ingredient_name']?.toString().toLowerCase() ?? '');
         return ingName.contains(lowerKeyword);
       });
 
@@ -66,6 +67,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       _loading = false;
     });
   }
+
 
 
   @override

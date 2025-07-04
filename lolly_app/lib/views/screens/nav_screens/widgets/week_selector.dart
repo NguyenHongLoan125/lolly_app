@@ -124,7 +124,8 @@ class _WeekSelectorState extends State<WeekSelector> {
                             '${date.day}',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
                             ),
                           ),
                         ],
