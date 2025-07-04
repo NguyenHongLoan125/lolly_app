@@ -31,7 +31,7 @@ Future<String?> _appRedirect(BuildContext context, GoRouterState state) async {
     '/login',
     '/sign_up',
     '/input-email',
-    '/vertification',
+    '/verification',
     '/new-password',
   ];
 
@@ -145,7 +145,7 @@ final GoRouter router = GoRouter(
       builder: (context, state) => PostedDishScreen(),
     ),
     GoRoute(
-      path: '/vertification',
+      path: '/verification',
       builder: (context, state) {
         final email = state.extra as String;
         return VertificationScreen(email: email);

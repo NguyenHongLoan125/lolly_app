@@ -92,7 +92,7 @@ class _InputEmailScreenState extends State<InputEmailScreen> {
                                     try {
                                       final success = await ForgotPasswordController.sendOtp(email);
                                       if (success) {
-                                        context.go('/vertification', extra: _emailController.text.trim());
+                                        context.go('/verification', extra: _emailController.text.trim());
 
 
                                       } else {
