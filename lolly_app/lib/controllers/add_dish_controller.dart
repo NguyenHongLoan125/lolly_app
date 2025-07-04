@@ -57,15 +57,9 @@ class AddDishController {
         'image_url': imageUrl,
         'user_id': userId,
         'created_at': now,
-        'difficulty': recipe.difficulty,
         'cook': recipe.instructions,
         'notes': recipe.notes,
         'state': isPublished,
-        'time': recipe.cookTime,
-        'ration': recipe.servings,
-        'cuisine_type': recipe.cuisineType,
-        'dish_type': recipe.dishType,
-        'dietary_type': recipe.dietaryType,
       }).select().single();
 
       final dishId = dishResponse['id'];
@@ -79,6 +73,13 @@ class AddDishController {
           'ingredient_id': ingredientId,
           'quantity': ing.quantity,
           'created_at': now,
+        });
+      }
+      for (final category in recipe.subCategory) {
+        await supabase.from('dish_sub_categories').insert({
+          'dishId': dishId,
+          'created_at': now,
+          'categories': category,
         });
       }
 
@@ -120,9 +121,6 @@ class AddDishController {
   }) async {
     final data = {
       'dish_name': recipe.title,
-      'time': recipe.cookTime,
-      'difficulty': recipe.difficulty,
-      'ration': recipe.servings,
       'cook': recipe.instructions,
       'notes': recipe.notes,
       'state': isPublished,
@@ -151,6 +149,20 @@ class AddDishController {
         'ingredient_id': ingredientId,
         'quantity': ing.quantity,
         'created_at': now,
+      });
+    }
+
+    //Xóa danh mục cũ
+    await Supabase.instance.client
+    .from('dish_sub_categories')
+    .delete()
+    .eq('dishId', dishId);
+    //Thêm danh mục mới
+    for (final category in recipe.subCategory) {
+      await supabase.from('dish_sub_categories').insert({
+        'dishId': dishId,
+        'created_at': now,
+        'categories': category,
       });
     }
   }

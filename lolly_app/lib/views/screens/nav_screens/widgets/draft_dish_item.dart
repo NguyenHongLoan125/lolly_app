@@ -102,13 +102,22 @@ class _DraftDishItemWidgetState extends State<DraftDishItemWidget> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  _dish.imageUrl ?? '',
+                child: (_dish.imageUrl != null && _dish.imageUrl!.isNotEmpty)
+                    ? Image.network(
+                  _dish.imageUrl!,
                   width: 110,
                   height: 90,
                   fit: BoxFit.fill,
+                  errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.broken_image),
+                )
+                    : Container(
+                  width: 110,
+                  height: 90,
+                  child: const Icon(Icons.image_not_supported),
                 ),
               ),
+
             ),
 
             // Info Section

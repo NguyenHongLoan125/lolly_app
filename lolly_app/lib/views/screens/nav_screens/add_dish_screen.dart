@@ -2,8 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lolly_app/models/catygory_models.dart';
+import 'package:lolly_app/models/sub_category_models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uuid/uuid.dart';
 import '../../../controllers/add_dish_controller.dart';
 import '../../../models/dishes_model.dart';
 
@@ -19,22 +20,19 @@ class _AddDishScreenState extends State<AddDishScreen> {
   final AddDishController controller = AddDishController();
   final ImagePicker _picker = ImagePicker();
   File? selectedImage;
-  final List<String> cookingTimes = ['15 phút', '30 phút', '1 giờ'];
-  final List<String> difficultyLevels = ['Dễ', 'Trung bình', 'Khó'];
-  final List<String> servingsList = ['1 người', '2 người', '4 người'];
-  final List<String> cuisineTypes = ['Việt Nam', 'Hàn Quốc', 'Nhật Bản', 'Thái Lan','Pháp'];
-  final List<String> dishTypes = ['Món chính', 'Món phụ', 'Tráng miệng'];
-  final List<String> dietaryTypes = ['Eat Clean', 'Thuần chay', 'Detox', 'DASH'];
 
-  String selectedCuisine = 'Việt Nam';
-  String selectedDishType = 'Món chính';
-  String selectedDiet = 'Thuần chay';
+  List<SubCategoryModels> allDishCategories = [];
+  List<SubCategoryModels> selectedCategories = [];
+  bool isLoading = true;
 
+  List<CategoryModel> requiredCategories = [];
+  Map<int, String?> selectedSubCategories = {};
+  Map<int, List<SubCategoryModels>> subCategoriesMap = {};
 
-  String selectedTime = '30 phút';
-  String selectedDifficulty = 'Trung bình';
-  String selectedServing = '1 người';
   String? imageUrlFromServer;
+
+  Map<int, int?> convertedMap = {};
+  List<int> mergedIds = [];
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController instructionsController = TextEditingController();
@@ -47,20 +45,65 @@ class _AddDishScreenState extends State<AddDishScreen> {
   @override
   void initState() {
     super.initState();
-
-
+    loadAllData();
     addIngredient();
+  }
+
+  Future<void> loadAllData() async {
+    convertSelectedNamesToIds();
+    await loadRequiredCategories();
+    await loadCategories();
+    await loadDishDataForEditing();
+    mergeSelectedIds(selectedCategories, convertedMap);
+  }
+
+  Future<void> loadDishDataForEditing() async {
     if (widget.dishData != null) {
+
       titleController.text = widget.dishData!['dish_name'] ?? '';
       instructionsController.text = widget.dishData!['cook'] ?? '';
       notesController.text = widget.dishData!['notes'] ?? '';
-      selectedTime = widget.dishData!['time'] ?? '30 phút';
-      selectedDifficulty = widget.dishData!['difficulty'] ?? 'Trung bình';
-      selectedServing = widget.dishData!['ration'] ?? '1 người';
       imageUrlFromServer = widget.dishData!['image_url'];
 
       Future.microtask(() => loadIngredients(widget.dishData!['id']));
+      final List<dynamic> dishSubCategories = widget.dishData!['dish_sub_categories'] ?? [];
 
+      // Tạo list id từ dishSubCategories
+      List<int> subCategoryIds = [];
+
+      for (var item in dishSubCategories) {
+        if (item['categories'] != null) {
+          subCategoryIds.add(item['categories']);
+        }
+      }
+
+      // Load allDishCategories
+      if (allDishCategories.isEmpty) {
+        await loadCategories();
+      }
+
+      // Cập nhật selectedCategories cho FilterChip
+      setState(() {
+        selectedCategories = allDishCategories
+            .where((e) => subCategoryIds.contains(e.id))
+            .toList();
+      });
+
+      // Cập nhật selectedSubCategories cho DropdownButtonFormField
+      for (var subId in subCategoryIds) {
+        subCategoriesMap.forEach((catId, subs) {
+          try {
+            final matched = subs.firstWhere((e) => e.id == subId);
+            setState(() {
+              selectedSubCategories[catId] = matched.sub_category_name;
+            });
+          } catch (e) {
+            print('subId $subId not found in category $catId');
+          }
+        });
+      }
+      // Convert thành convertedMap
+      convertSelectedNamesToIds();
     }
   }
 
@@ -86,7 +129,6 @@ class _AddDishScreenState extends State<AddDishScreen> {
     }
   }
 
-
   void addIngredient() {
     setState(() {
       ingredients.add({
@@ -102,7 +144,6 @@ class _AddDishScreenState extends State<AddDishScreen> {
     });
   }
 
-
   Future<void> submitRecipe() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -114,21 +155,20 @@ class _AddDishScreenState extends State<AddDishScreen> {
         .where((ing) => ing.name.isNotEmpty || ing.quantity.isNotEmpty)
         .toList();
 
+    mergedIds = mergeSelectedIds(selectedCategories, convertedMap);
+    // print('🔍 Merged IDs trước khi tạo recipe: $mergedIds');
+
     final recipe = RecipeModel(
       imageUrl: null,
       title: titleController.text.trim(),
-      cookTime: selectedTime,
-      difficulty: selectedDifficulty,
-      servings: selectedServing,
       ingredients: ingredientList,
       instructions: instructionsController.text.trim(),
       notes: notesController.text.trim(),
+      subCategory: mergedIds,
     );
-
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id ?? '';
       String? imageUrl;
-
       if (selectedImage != null) {
         final uploadedUrl = await controller.uploadImage(selectedImage!);
         if (uploadedUrl == null) {
@@ -143,7 +183,6 @@ class _AddDishScreenState extends State<AddDishScreen> {
       if (widget.dishData != null) {
         // Chế độ chỉnh sửa: cập nhật
         final dishId = widget.dishData!['id'];
-
         await controller.updateDish(
           dishId: dishId,
           recipe: recipe,
@@ -172,8 +211,6 @@ class _AddDishScreenState extends State<AddDishScreen> {
       );
     }}
 
-
-
   Future<void> saveDraft() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -184,25 +221,21 @@ class _AddDishScreenState extends State<AddDishScreen> {
     ))
         .where((ing) => ing.name.isNotEmpty || ing.quantity.isNotEmpty)
         .toList();
+    mergedIds = mergeSelectedIds(selectedCategories, convertedMap);
+    // print('Merged IDs trước khi tạo recipe: $mergedIds');
 
     final recipe = RecipeModel(
       imageUrl: null,
       title: titleController.text.trim(),
-      cookTime: selectedTime,
-      difficulty: selectedDifficulty,
-      servings: selectedServing,
       ingredients: ingredientList,
       instructions: instructionsController.text.trim(),
       notes: notesController.text.trim(),
-      cuisineType: selectedCuisine,
-      dishType: selectedDishType,
-      dietaryType: selectedDiet,
+      subCategory: mergedIds,
     );
 
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id ?? '';
       String? imageUrl;
-
       if (selectedImage != null) {
         final uploadedUrl = await controller.uploadImage(selectedImage!);
         if (uploadedUrl == null) {
@@ -220,7 +253,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
           dishId: dishId,
           recipe: recipe,
           imageUrl: imageUrl,
-          isPublished: false, // ⬅️ quan trọng: state = false để là bản nháp
+          isPublished: false,
         );
       } else {
         await controller.addDish(
@@ -263,8 +296,6 @@ class _AddDishScreenState extends State<AddDishScreen> {
     });
   }
 
-
-
   Widget buildImagePicker() {
     return GestureDetector(
       onTap: pickImage,
@@ -299,11 +330,9 @@ class _AddDishScreenState extends State<AddDishScreen> {
           ],
         )
             : null,
-
       ),
     );
   }
-
 
   InputDecoration inputDecoration(String label) {
     return InputDecoration(
@@ -316,13 +345,68 @@ class _AddDishScreenState extends State<AddDishScreen> {
     );
   }
 
-  ButtonStyle greenButtonStyle() {
-    return ElevatedButton.styleFrom(
-      backgroundColor: Colors.green[700],
-      foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    );
+  Future<void> loadCategories() async {
+    final categories = await fetchDishCategories();
+    setState(() {
+      allDishCategories = categories;
+      isLoading = false;
+    });
+  }
+
+  Future<void> loadRequiredCategories() async {
+    final categories = await fetchRequiredCategories();
+    setState(() {
+      requiredCategories = categories;
+    });
+
+    // Load sub categories cho từng category
+    for (var cat in categories) {
+      final subs = await fetchSubCategoriesByCategory(cat.id);
+      setState(() {
+        subCategoriesMap[cat.id] = subs;
+        selectedSubCategories[cat.id] = null;
+      });
+    }
+  }
+
+  void convertSelectedNamesToIds() {
+    selectedSubCategories.forEach((categoryId, subCategoryName) {
+      if (subCategoryName != null) {
+        final subs = subCategoriesMap[categoryId];
+
+        if (subs != null) {
+          SubCategoryModels? matchedSub;
+          try {
+            matchedSub = subs.firstWhere((e) => e.sub_category_name == subCategoryName);
+          } catch (e) {
+            matchedSub = null;
+          }
+          if (matchedSub != null) {
+            convertedMap[categoryId] = matchedSub.id;
+          } else {
+            convertedMap[categoryId] = null;
+          }
+        } else {
+          convertedMap[categoryId] = null;
+        }
+      } else {
+        convertedMap[categoryId] = null;
+      }
+    });
+  }
+
+  List<int> mergeSelectedIds(
+      List<SubCategoryModels> selectedCategories,
+      Map<int, int?> convertedMap,
+      ) {
+    // Dùng Set để tự động loại trùng
+    Set<int> mergedSet = {};
+
+    mergedSet.addAll(selectedCategories.map((e) => e.id));
+    mergedSet.addAll(convertedMap.values.whereType<int>());
+
+    final mergedIds = mergedSet.toList();
+    return mergedIds;
   }
 
   @override
@@ -359,69 +443,119 @@ class _AddDishScreenState extends State<AddDishScreen> {
                 validator: (val) => val == null || val.isEmpty ? 'Nhập tên công thức' : null,
               ),
               const SizedBox(height: 12),
+              Column(
+                children: requiredCategories.map((category) {
+                  final subCategories = subCategoriesMap[category.id] ?? [];
+
+                  return Column(
+                    children: [
+                      DropdownButtonFormField<String>(
+                        decoration: inputDecoration(category.category_name),
+                        value: selectedSubCategories[category.id],
+                        items: subCategories
+                            .map((e) => DropdownMenuItem(
+                          value: e.sub_category_name,
+                          child: Text(e.sub_category_name),
+                        ))
+                            .toList(),
+                        onChanged: (val) {
+                          setState(() {
+                            selectedSubCategories[category.id] = val;
+                          });
+                          convertSelectedNamesToIds();
+                        },
+                      ),
+
+                      const SizedBox(height: 12),
+                    ],
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Danh mục món ăn',
+                  style: TextStyle(fontSize: 17, color: Color(0xFF007400), fontWeight: FontWeight.w500),
+                ),
+              ),
+
+              if (selectedCategories.isNotEmpty)
+                Wrap(
+                  spacing: 8,
+                  children: selectedCategories.map((category) {
+                    return Chip(
+                      label: Text(
+                        category.sub_category_name,
+                      ),
+                      backgroundColor: Color(0xFFDCEDD7),
+                      deleteIcon: Icon(Icons.close,),
+                      onDeleted: () {
+                        setState(() {
+                          selectedCategories.remove(category);
+                        });
+                      },
+                      shape: StadiumBorder(
+                        side: BorderSide(
+                          color:  Color(0xFFDCEDD7),
+                          width: 1,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+
+              const SizedBox(height: 10),
+
+              SizedBox(
+                height: 40,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: allDishCategories.length,
+                  itemBuilder: (context, index) {
+                    final category = allDishCategories[index];
+                    final isSelected = selectedCategories.contains(category);
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: FilterChip(
+                        label: Text(
+                          category.sub_category_name,
+                          style: TextStyle(
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? Colors.white : Colors.black45,
+                          ),
+                        ),
+                        selected: isSelected,
+                        selectedColor: Colors.green,
+                        backgroundColor: Color(0xFFDCEDD7),
+                        checkmarkColor: Colors.white,
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected && !selectedCategories.contains(category)) {
+                              selectedCategories.add(category);
+                            }
+                          });
+                        },
+                        shape: StadiumBorder(
+                          side: BorderSide(
+                            color: Color(0xFFDCEDD7),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
               Row(
                 children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      decoration: inputDecoration('Thời gian nấu'),
-                      value: selectedTime,
-                      items: cookingTimes
-                          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      onChanged: (val) => setState(() => selectedTime = val!),
-                    ),
+                  const Text('Nguyên liệu', style: TextStyle(fontSize: 17, color: Color(0xFF007400), fontWeight: FontWeight.w500),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      decoration: inputDecoration('Độ khó'),
-                      value: selectedDifficulty,
-                      items: difficultyLevels
-                          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      onChanged: (val) => setState(() => selectedDifficulty = val!),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                decoration: inputDecoration('Khẩu phần'),
-                value: selectedServing,
-                items: servingsList
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                    .toList(),
-                onChanged: (val) => setState(() => selectedServing = val!),
-              ),
-              const SizedBox(height: 20),
-
-              DropdownButtonFormField<String>(
-                decoration: inputDecoration('Loại ẩm thực'),
-                value: selectedCuisine,
-                items: cuisineTypes.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                onChanged: (val) => setState(() => selectedCuisine = val!),
-              ),
-
-              const SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                decoration: inputDecoration('Loại món ăn'),
-                value: selectedDishType,
-                items: dishTypes.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                onChanged: (val) => setState(() => selectedDishType = val!),
-              ),
-
-              const SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                decoration: inputDecoration('Chế độ ăn'),
-                value: selectedDiet,
-                items: dietaryTypes.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                onChanged: (val) => setState(() => selectedDiet = val!),
-              ),
-              const SizedBox(height: 20),
-
-              Row(
-                children: [
-                  const Text('Nguyên liệu', style: TextStyle(fontSize: 16)),
                   const Spacer(),
                   IconButton(onPressed: addIngredient, icon: const Icon(Icons.add)),
                 ],
@@ -512,5 +646,5 @@ class _AddDishScreenState extends State<AddDishScreen> {
         ),
       ),
     );
-    }
+  }
 }
