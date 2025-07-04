@@ -1,18 +1,18 @@
 class UserModel {
-  String? userId;
+  final String? userId;
   String? firstname;
   String? lastname;
-  String? email;
+  final String? email;
   String? address;
   String? gender;
   String? introduction;
   String? profileImage;
 
   UserModel({
-    this.userId,
+    required this.userId,
     this.firstname,
     this.lastname,
-    this.email,
+    required this.email,
     this.address,
     this.gender,
     this.introduction,
