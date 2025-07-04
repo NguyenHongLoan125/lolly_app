@@ -109,7 +109,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     delegate: SliverChildBuilderDelegate(
                           (context, index) {
                         final dishData = dishes[index];
-                        print(dishData);
+                        // print(dishData);
                         return Padding(
                           padding: const EdgeInsets.only(right: 12.0, bottom: 12),
                           child: DishItemWidget(dishData: dishData),

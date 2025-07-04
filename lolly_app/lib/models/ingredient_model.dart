@@ -89,21 +89,35 @@ Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
     for (final ing in rawIngredients) {
       final quantity = ing.quantity.trim();
 
-      final RegExp reg = RegExp(r'^([\d.]+)\s*(.*)$');
+      // Regex bắt dạng "20-25 cái" hoặc "20 cái"
+      final RegExp reg = RegExp(r'^(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?\s*(.*)$');
       final match = reg.firstMatch(quantity);
 
       if (match == null) {
+        // Không match regex => giữ nguyên
         grouped[ing.name] ??= {};
         grouped[ing.name]![quantity] = (grouped[ing.name]![quantity] ?? 0) + 1;
         continue;
       }
 
-      final double value = double.tryParse(match.group(1)!) ?? 0;
-      final String unit = match.group(2)!.trim();
+      double value;
+
+      if (match.group(2) != null) {
+        // Là khoảng, lấy trung bình
+        final start = double.tryParse(match.group(1)!) ?? 0;
+        final end = double.tryParse(match.group(2)!) ?? 0;
+        value = (start + end) / 2;
+      } else {
+        // Là số đơn
+        value = double.tryParse(match.group(1)!) ?? 0;
+      }
+
+      final String unit = match.group(3)!.trim();
 
       grouped[ing.name] ??= {};
       grouped[ing.name]![unit] = (grouped[ing.name]![unit] ?? 0) + value;
     }
+
 
     // 4. Trả về danh sách đã gộp
     List<Ingredient> merged = [];
