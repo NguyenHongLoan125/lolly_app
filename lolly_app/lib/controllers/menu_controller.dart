@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/custom_snackbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> addToMenu({
@@ -15,13 +16,11 @@ Future<void> addToMenu({
       'created_at': DateTime.now().toIso8601String(),
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã thêm vào menu!')),
-    );
+    showCustomSnackbar(context, 'Đã thêm vào menu!');
+
   } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã xảy ra lỗi khi thêm món.')),
-    );
+    showCustomSnackbar(context, 'Đã xảy ra lỗi khi thêm món');
+
   }
 }
 
@@ -43,14 +42,11 @@ Future<void> deleteToMenu({
     print('Delete response: $response');
 
     if (response != null && response.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã xóa khỏi thực đơn!')),
-      );
+      showCustomSnackbar(context, 'Đã xóa khỏi thực đơn!');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không tìm thấy món ăn để xóa.')),
-      );
+      showCustomSnackbar(context, 'Không tìm thấy món ăn để xóa.');
     }
+
   } catch (error) {
     print('Lỗi khi xóa: $error');
     ScaffoldMessenger.of(context).showSnackBar(

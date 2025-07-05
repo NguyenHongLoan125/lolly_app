@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lolly_app/controllers/dish_controller.dart';
 import 'package:lolly_app/models/dish_model.dart';
 import 'package:lolly_app/views/screens/nav_screens/add_dish_screen.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/custom_snackbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../models/ingredient_model.dart';
 
@@ -42,9 +43,8 @@ class _PostedDishItemWidgetState extends State<PostedDishItemWidget> {
   Future<void> _toggleLike() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bạn cần đăng nhập để yêu thích món ăn.')),
-      );
+      showCustomSnackbar(context, 'Bạn cần đăng nhập để yêu thích món ăn.');
+
       return;
     }
     print("Like");
@@ -65,9 +65,8 @@ class _PostedDishItemWidgetState extends State<PostedDishItemWidget> {
           likeCount += 1;
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Không thể yêu thích món ăn này.')),
-        );
+        showCustomSnackbar(context, 'Không thể yêu thích món ăn này.');
+
       }
     }
   }
@@ -246,9 +245,8 @@ class _PostedDishItemWidgetState extends State<PostedDishItemWidget> {
 
                             setState(() => isDelete = true);
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Đa xóa món ăn.")),
-                            );
+                            showCustomSnackbar(context, "Đã xóa món ăn.");
+
                           },
 
                           icon: const Icon(Icons.delete, color: Color(0xFF007400)),
