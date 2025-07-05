@@ -45,5 +45,12 @@ flutter run
 
 ## Ảnh chụp màn hình
 
+| ![Screenshot 1](lolly_app/assets/screenshots/h1.png) | ![Screenshot 2](lolly_app/assets/screenshots/h2.png) | ![Screenshot 3](lolly_app/assets/screenshots/h3.png) |
+|---|---|---|
+| ![Screenshot 4](lolly_app/assets/screenshots/h4.png) | ![Screenshot 5](lolly_app/assets/screenshots/h5.png) | ![Screenshot 6](lolly_app/assets/screenshots/h6.png) |
+| ![Screenshot 7](lolly_app/assets/screenshots/h7.png) | ![Screenshot 8](lolly_app/assets/screenshots/h8.png) | ![Screenshot 9](lolly_app/assets/screenshots/h9.png) |
+| ![Screenshot 10](lolly_app/assets/screenshots/h10.png)|
+
+
 
 
