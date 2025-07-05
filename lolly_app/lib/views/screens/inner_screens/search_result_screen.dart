@@ -1,5 +1,6 @@
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/dish_item.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -78,6 +79,13 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         backgroundColor: const Color(0xFFECF5E3),
         appBar: AppBar(
           backgroundColor: const Color(0xFFECF5E3),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
+            onPressed: () {
+              FocusScope.of(context).unfocus();
+              context.pop(); // pop trong GoRouter để quay về
+            },
+          ),
           title: const Text(
             "Kết quả tìm kiếm",
             style: TextStyle(

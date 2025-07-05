@@ -134,8 +134,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             Align(
               alignment: Alignment.topLeft,
               child: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.go('/account'), // ← chuyển về /account
+                icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF007400)),
+                onPressed: () => context.go('/account'),
               ),
             ),
             const SizedBox(height: 10),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lolly_app/controllers/authentication_controller.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/custom_snackbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -212,9 +213,7 @@ class AccountScreen extends StatelessWidget {
                             }
                           } catch (e) {
                             print('Lỗi khi đăng xuất: $e');
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Đăng xuất thất bại')),
-                            );
+                            showCustomSnackbar(context, 'Đăng xuất thất bại');
                           }
                         }
                       },
