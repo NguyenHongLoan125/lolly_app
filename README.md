@@ -47,7 +47,7 @@ flutter run
 
 | ![Screenshot 1](lolly_app/assets/screenshots/home.png) | ![Screenshot 2](lolly_app/assets/screenshots/categories.png) | ![Screenshot 3](lolly_app/assets/screenshots/result.png) |
 |---|---|---|
-| ![Screenshot 4](lolly_app/assets/screenshots/calender.png) | ![Screenshot 5](lolly_app/assets/screenshots/shopping.png) | ![Screenshot 6](lolly_app/assets/screenshots/add.png) |
+| ![Screenshot 4](lolly_app/assets/screenshots/calender.png) | ![Screenshot 5](lolly_app/assets/screenshots/shopping.png) | ![Screenshot 6](lolly_app/assets/screenshots/add1.png) |
 | ![Screenshot 7](lolly_app/assets/screenshots/account.png) | ![Screenshot 8](lolly_app/assets/screenshots/posted.png) | ![Screenshot 9](lolly_app/assets/screenshots/favorite.png) |
 | ![Screenshot 10](lolly_app/assets/screenshots/editprofile.png)|![Screenshot 9](lolly_app/assets/screenshots/draft.png) |
 
