@@ -5,31 +5,58 @@ class DishDetailController {
   final _client = Supabase.instance.client;
 
   Future<DetailDishModel?> getDishDetail(String dishId) async {
-    final data = await _client
-        .from('dishes')
-        .select('''
-          dish_name,
-          user_name,
-          image_url,
-          cook,
-          notes,
-          dish_sub_categories (
-            sub_categories (
-              time,
-              difficulty,
-              people
-            )
-          ),
-          dish_ingredient (
-            amount,
-            unit,
-            ingredients ( name )
-          )
-        ''')
-        .eq('id', dishId)
-        .maybeSingle();
+    try {
+      // Lấy thông tin người dùng hiện tại
+      final currentUserId = _client.auth.currentUser?.id;
 
-    if (data == null) return null;
-    return DetailDishModel.fromMap(data);
+      // Query món ăn
+      final dishData = await _client
+          .from('dishes')
+          .select('''
+      id,
+      dish_name,
+      image_url,
+      user_id,
+      cook,
+      notes,
+      dish_ingredients (
+        quantity,
+        ingredients ( ingredient_name )
+      ),
+      dish_sub_categories (
+        sub_categories (
+          sub_category_name,
+          categories ( category_name )
+        )
+      )
+    ''')
+          .eq('id', dishId)
+          .maybeSingle();
+
+      if (dishData == null) return null;
+
+      final authorId = dishData['user_id'];
+
+      if (authorId == currentUserId) {
+        // Nếu là người đăng bài
+        dishData['users'] = {'firstname': 'Tôi', 'lastname': ''};
+      } else {
+        // Lấy tên tác giả
+        final userData = await _client
+            .from('users')
+            .select('firstname, lastname')
+            .eq('user_id', authorId) // ✅ sửa đúng cột
+            .maybeSingle();
+
+        dishData['users'] = userData;
+      }
+
+
+      return DetailDishModel.fromMap(dishData);
+    } catch (e) {
+      print('❌ LỖI LẤY CHI TIẾT MÓN ĂN: $e');
+      return null;
+    }
   }
+
 }
