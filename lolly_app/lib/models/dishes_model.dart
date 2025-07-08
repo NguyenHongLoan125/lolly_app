@@ -3,6 +3,13 @@ class Ingredient {
   final String quantity;
 
   Ingredient({required this.name, required this.quantity});
+
+  factory Ingredient.fromMap(Map<String, dynamic> map) {
+    return Ingredient(
+      name: map['ingredients']?['ingredient_name'] ?? '',
+      quantity: map['quantity'] ?? '',
+    );
+  }
 }
 
 class RecipeModel {
