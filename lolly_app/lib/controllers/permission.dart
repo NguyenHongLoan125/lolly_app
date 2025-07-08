@@ -6,46 +6,49 @@ Future<void> requestPhotoPermission() async {
   PermissionStatus status;
 
   if (Platform.isAndroid) {
-    // Lấy version SDK
-    final sdkInt = (await Permission.storage.status).isGranted
-        ? 32 // giả định nếu đã granted mà không biết sdk
-        : await _getAndroidSdkInt();
+    final sdkInt = await _getAndroidSdkInt();
+    print('📱 Android SDK version: $sdkInt');
 
     if (sdkInt >= 33) {
-      // Android 13 trở lên
-      status = await Permission.photos.request();
+      // Android 13+ yêu cầu quyền ảnh riêng
+      status = await Permission.photos.request(); // hoặc Permission.mediaLibrary nếu dùng media khác
     } else {
-      // Android thấp hơn
+      // Android < 13 dùng quyền storage truyền thống
       status = await Permission.storage.request();
     }
   } else if (Platform.isIOS) {
-    // iOS
+    // iOS dùng quyền ảnh
     status = await Permission.photos.request();
   } else {
-    // Platform khác (web, desktop)
+    print("⚠️ Không hỗ trợ platform này: ${Platform.operatingSystem}");
     return;
   }
 
+  // Ghi log tình trạng quyền
+  print('🔐 Trạng thái quyền: $status');
+  print(' - isGranted: ${status.isGranted}');
+  print(' - isDenied: ${status.isDenied}');
+  print(' - isPermanentlyDenied: ${status.isPermanentlyDenied}');
+  print(' - isRestricted: ${status.isRestricted}');
+
+  // Xử lý logic quyền
   if (status.isGranted) {
     print('✅ Quyền đã được cấp');
   } else if (status.isDenied) {
-    print('❌ Quyền bị từ chối');
-  } else if (status.isPermanentlyDenied) {
-    print('⚠️ Người dùng từ chối vĩnh viễn - cần mở cài đặt');
-    openAppSettings();
+    print('❌ Quyền bị từ chối (tạm thời)');
+  } else if (status.isPermanentlyDenied || status.isRestricted) {
+    print('⚠️ Quyền bị từ chối vĩnh viễn hoặc bị hạn chế — mở cài đặt');
+    await openAppSettings();
   }
 }
 
 Future<int> _getAndroidSdkInt() async {
   try {
-    // Sử dụng package device_info_plus để lấy SDK version
-    // Thêm dependency trong pubspec.yaml: device_info_plus: ^9.0.2
-
     final deviceInfo = DeviceInfoPlugin();
     final androidInfo = await deviceInfo.androidInfo;
-    return androidInfo.version.sdkInt ?? 0;
+    return androidInfo.version.sdkInt;
   } catch (e) {
-    print('Lỗi lấy sdkInt: $e');
-    return 0;
+    print('❌ Lỗi khi lấy SDK version: $e');
+    return 0; // fallback
   }
 }

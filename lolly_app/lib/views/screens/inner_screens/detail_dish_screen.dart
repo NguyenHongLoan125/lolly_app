@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lolly_app/controllers/menu_controller.dart';
 import '../../../controllers/detail_dish_controller.dart';
 import '../../../models/detail_dish_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -83,7 +84,7 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFECF5E3),
+      backgroundColor: const Color(0xFFFFFFFF),
       body: FutureBuilder<DetailDishModel?>(
         future: _futureDish,
         builder: (context, snapshot) {
@@ -148,17 +149,52 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                           ),
                           Row(
                             children: [
-                              Icon(
-                                isLiked
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: Colors.red,
+                              GestureDetector(
+                                onTap: _toggleLike,
+                                child: Icon(
+                                  isLiked ? Icons.favorite : Icons.favorite_border,
+                                  color: Colors.red,
+                                ),
                               ),
-                              SizedBox(width: 12),
-                              Icon(Icons.add_circle_outline,
-                                  color:Color(0xff007400)),
+                              const SizedBox(width: 12),
+                              GestureDetector(
+                                onTap: () async {
+                                  final dishId = _dish.id as String?;
+                                  final userId =
+                                      Supabase.instance.client.auth.currentUser?.id;
+
+                                  if (userId == null || dishId == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Không thể xác định người dùng.')),
+                                    );
+                                    return;
+                                  }
+
+                                  final DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2024),
+                                    lastDate: DateTime(2030),
+                                    helpText: 'Chọn ngày thêm vào thực đơn',
+                                    confirmText: 'Thêm',
+                                    cancelText: 'Huỷ',
+                                  );
+
+                                  if (pickedDate != null) {
+                                    await addToMenu(
+                                      context: context,
+                                      dishId: dishId,
+                                      userId: userId,
+                                      menuDate: pickedDate,
+                                    );
+                                  }
+                                },
+                                child: const Icon(Icons.add_circle_outline, color: Color(0xff007400)),
+                              ),
                             ],
                           ),
+
                         ],
                       ),
                     ),
@@ -199,7 +235,8 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE6F4EA),
+                          color: const Color(0xFFECF5E3),
+                          border: Border.all(color: const Color(0xFF007400)),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
@@ -222,13 +259,6 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                               Text(dish.cook!),
                             ],
 
-                            // const SizedBox(height: 12),
-                            // if (dish.notes != null) ...[
-                            //   const Text('Cách chế biến:',
-                            //       style:
-                            //       TextStyle(fontWeight: FontWeight.bold)),
-                            //   Text(dish.notes!),
-                            // ],
                           ],
                         ),
                       ),
@@ -254,7 +284,7 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.orangeAccent),
                                 borderRadius: BorderRadius.circular(8),
-                                color: Colors.white,
+                                color: Color(0xffFFF8F8),
                               ),
                               child: Text(
                                 dish.notes!,
