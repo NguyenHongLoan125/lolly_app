@@ -115,9 +115,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
                         if (index < dishes.length) {
                           final dishData = dishes[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 12.0, bottom: 12),
-                            child: MenuDishItemWidget(dishData: dishData),
+                          return GestureDetector(
+                            onTap: () {
+                              context.push('/dish/${dishData['dishId']}');
+                              print("chọn món có id: ");
+                              print(dishData['dishId']);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 12.0, bottom: 20),
+                              child: MenuDishItemWidget(dishData: dishData),
+                            ),
                           );
                         }
 

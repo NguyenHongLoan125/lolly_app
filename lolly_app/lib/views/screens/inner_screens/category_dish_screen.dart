@@ -150,9 +150,14 @@ class _CategoryDishScreenState extends State<CategoryDishScreen> {
                     child: ListView.builder(
                       itemCount: filteredDishes.length,
                       itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 12.0, bottom: 12),
-                          child: DishItemWidget(dishData: filteredDishes[index]),
+                        return GestureDetector(
+                          onTap: () {
+                            context.push('/dish/${filteredDishes[index]['id']}');
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12.0, bottom: 20),
+                            child: DishItemWidget(dishData: filteredDishes[index]),
+                          ),
                         );
                       },
                     ),

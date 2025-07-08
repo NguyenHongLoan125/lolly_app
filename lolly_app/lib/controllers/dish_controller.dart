@@ -211,7 +211,18 @@ class DishController extends GetxController {
     return true;
   }
 
+  Future<DishModel> fetchDishById(String id) async {
+    final supabase = Supabase.instance.client;
 
+    final response = await supabase
+        .from('dishes')
+        .select()
+        .eq('id', id)
+        .single(); // lấy duy nhất 1 record
+
+    // Convert Map sang DishModel
+    return DishModel.fromMap(response);
+  }
 
   Future<void> unlikeDish(String userId, DishModel dish) async {
     await _supabase

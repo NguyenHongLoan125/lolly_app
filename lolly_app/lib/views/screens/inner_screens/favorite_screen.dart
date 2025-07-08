@@ -110,11 +110,17 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                           (context, index) {
                         final dishData = dishes[index];
                         // print(dishData);
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 12.0, bottom: 12),
-                          child: DishItemWidget(dishData: dishData),
+                        return GestureDetector(
+                          onTap: () {
+                            context.push('/dish/${dishData['dish_id']}');
+                            // print("chọn món có id: ");
+                            // print(dishData['dish_id']);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12.0, bottom: 20),
+                            child: DishItemWidget(dishData: dishData),
+                          ),
                         );
-
                       },
                       childCount: dishes.length,
                     ),
