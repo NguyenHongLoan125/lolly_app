@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lolly_app/views/screens/nav_screens/widgets/custom_snackbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../views/screens/login_sigup_screen/login.dart';
 import '../views/screens/login_sigup_screen/sign_up.dart';
@@ -110,13 +111,7 @@ class AuthenticationController {
       );
 
       if (response.session != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Đăng nhập thành công!"),
-            backgroundColor: Colors.green,
-          ),
-        );
-
+        showCustomSnackbar(context, "Đăng nhập thành công!");
         // Chuyển hướng người dùng sau đăng nhập (VD: vào màn hình chính)
         // Navigator.pushReplacement(
         //     context,
@@ -124,12 +119,8 @@ class AuthenticationController {
         context.go('/home');
 
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Đăng nhập thất bại!"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showCustomSnackbar(context, "Đăng nhập thất bại!");
+
       }
     } catch (e) {
       print("❌ Lỗi đăng nhập: $e");

@@ -6,6 +6,7 @@ import 'package:lolly_app/models/catygory_models.dart';
 import 'package:lolly_app/models/sub_category_models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../controllers/add_dish_controller.dart';
+import '../../../controllers/permission.dart';
 import '../../../models/dishes_model.dart';
 
 class AddDishScreen extends StatefulWidget {
@@ -47,6 +48,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
     super.initState();
     loadAllData();
     addIngredient();
+    // requestPhotoPermission();
   }
 
   Future<void> loadAllData() async {
@@ -109,6 +111,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
 
   Future<void> pickImage() async {
     try {
+      await requestPhotoPermission();
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         final file = File(image.path);

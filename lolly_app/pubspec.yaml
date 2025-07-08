@@ -49,6 +49,7 @@ dependencies:
   uuid: any
   permission_handler: ^11.0.0
   diacritic: ^0.1.3
+  device_info_plus: ^9.0.2
 
 
 

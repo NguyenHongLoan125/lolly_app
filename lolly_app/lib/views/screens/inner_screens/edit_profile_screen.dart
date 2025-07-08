@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../controllers/edit_profile_controller.dart';
+import '../../../controllers/permission.dart';
 import '../../../models/user_model.dart';
 import 'package:go_router/go_router.dart'; // để dùng context.go()
 
@@ -28,6 +29,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     _loadUser();
+
   }
 
   Future<void> _loadUser() async {
@@ -47,6 +49,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _pickImage() async {
     try {
+      await requestPhotoPermission();
       final picker = ImagePicker();
       final picked = await picker.pickImage(source: ImageSource.gallery);
       if (picked != null) {
