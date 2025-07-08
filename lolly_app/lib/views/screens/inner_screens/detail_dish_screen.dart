@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../controllers/detail_dish_controller.dart';
 import '../../../models/detail_dish_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -18,17 +19,36 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
   bool isLiked = false;
   int likeCount = 0;
   late DishController _controller;
-  late DishModel _dish; // nếu bạn có thông tin món ăn từ trước
+  late DishModel _dish;
 
   late Future<DetailDishModel?> _futureDish;
 
   @override
   void initState() {
     super.initState();
+    _controller = DishController();
     _futureDish = DishDetailController().getDishDetail(widget.dishId);
+
+    fetchDish();
   }
 
-  Future<void> toggleLike() async {
+  Future<void> fetchDish() async {
+    _dish = await _controller.fetchDishById(widget.dishId);
+    likeCount = _dish.likes;
+    await _checkIfLiked();
+    setState(() {});
+  }
+
+  Future<void> _checkIfLiked() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) return;
+    final liked = await _controller.isLikedByUser(userId, _dish.id);
+    setState(() {
+      isLiked = liked;
+    });
+  }
+
+  Future<void> _toggleLike() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -59,195 +79,199 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF3F3F3),
-        body: FutureBuilder<DetailDishModel?>(
-          future: _futureDish,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (!snapshot.hasData || snapshot.data == null) {
-              return const Center(child: Text('Không tìm thấy món ăn'));
-            }
+    return Scaffold(
+      backgroundColor: const Color(0xFFECF5E3),
+      body: FutureBuilder<DetailDishModel?>(
+        future: _futureDish,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(child: Text('Không tìm thấy món ăn'));
+          }
 
-            final dish = snapshot.data!;
-            return CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  backgroundColor: Colors.white,
-                  title: Text(dish.dishName ?? '',
-                      style: const TextStyle(color: Color(0xff007400),fontWeight: FontWeight.bold)),
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Color(0xff007400)),
-                    onPressed: () => Navigator.pop(context),
+          final dish = snapshot.data!;
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                backgroundColor: Color(0xFFECF5E3),
+                title: Text(
+                  dish.dishName ?? '',
+                  style: const TextStyle(
+                    color: Color(0xff007400),
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (dish.imageUrl != null && dish.imageUrl!.isNotEmpty)
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(0),
-                          child: Image.network(
-                            dish.imageUrl!,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      const SizedBox(height: 12),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, color: Color(0xff007400)),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
 
-                      // Tác giả + hành động
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  const TextSpan(
-                                    text: 'Tác giả: ',
-                                    style:
-                                    TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  TextSpan(text: dish.author ?? ''),
-                                ],
-                              ),
-                            ),
-                            Row(
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (dish.imageUrl != null && dish.imageUrl!.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(0),
+                        child: Image.network(
+                          dish.imageUrl!,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    const SizedBox(height: 12),
+
+                    // Tác giả + hành động
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text.rich(
+                            TextSpan(
                               children: [
-                                IconButton(
-                                  icon: Icon(
-                                    isLiked ? Icons.favorite : Icons.favorite_border,
-                                    color: Colors.red,
-                                  ),
-                                  onPressed: toggleLike,
+                                const TextSpan(
+                                  text: 'Tác giả: ',
+                                  style:
+                                  TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(width: 12),
-                                Icon(Icons.add_circle_outline,
-                                    color:Color(0xff007400)),
+                                TextSpan(text: dish.author ?? ''),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Thông tin tổng quan (time, độ khó, khẩu phần)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Wrap(
-                          spacing: 16,
-                          runSpacing: 12,
-                          children: [
-                            if (dish.time != null)
-                              _infoIconFromAsset('assets/icons/time.png', dish.time!),
-                            if (dish.difficulty != null)
-                              _infoIconFromAsset('assets/icons/level.png', dish.difficulty!),
-                            if (dish.people != null)
-                              _infoIconFromAsset('assets/icons/people.png', '${dish.people} người'),
-
-                            if (dish.types != null)
-                              ...dish.types!.map((e) => _infoIconFromAsset('assets/icons/category.png', e)),
-                            if (dish.styles != null)
-                              ...dish.styles!.map((e) => _infoIconFromAsset('assets/icons/nation.png', e)),
-                            if (dish.diets != null)
-                              ...dish.diets!.map((e) => _infoIconFromAsset('assets/icons/healthy.png', e)),
-                          ],
-                        ),
-                      ),
-
-
-
-                      const SizedBox(height: 20),
-
-                      // Nguyên liệu + cách chọn + chế biến
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE6F4EA),
-                            borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
-                              const Text('Nguyên liệu:',
+                              Icon(
+                                isLiked
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: Colors.red,
+                              ),
+                              SizedBox(width: 12),
+                              Icon(Icons.add_circle_outline,
+                                  color:Color(0xff007400)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Thông tin tổng quan (time, độ khó, khẩu phần)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Wrap(
+                        spacing: 16,
+                        runSpacing: 12,
+                        children: [
+                          if (dish.time != null)
+                            _infoIconFromAsset('assets/icons/time.png', dish.time!),
+                          if (dish.difficulty != null)
+                            _infoIconFromAsset('assets/icons/level.png', dish.difficulty!),
+                          if (dish.people != null)
+                            _infoIconFromAsset('assets/icons/people.png', '${dish.people} người'),
+
+                          if (dish.types != null)
+                            ...dish.types!.map((e) => _infoIconFromAsset('assets/icons/category.png', e)),
+                          if (dish.styles != null)
+                            ...dish.styles!.map((e) => _infoIconFromAsset('assets/icons/nation.png', e)),
+                          if (dish.diets != null)
+                            ...dish.diets!.map((e) => _infoIconFromAsset('assets/icons/healthy.png', e)),
+                        ],
+                      ),
+                    ),
+
+
+
+                    const SizedBox(height: 20),
+
+                    // Nguyên liệu + cách chọn + chế biến
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE6F4EA),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Nguyên liệu:',
+                                style:
+                                TextStyle(fontWeight: FontWeight.bold)),
+                            if (dish.ingredients != null)
+                              ...dish.ingredients!
+                                  .map((e) =>
+                                  Text('- ${e.name}: ${e.quantity}'))
+                                  .toList(),
+
+                            const SizedBox(height: 12),
+                            if (dish.cook != null) ...[
+                              const Text('Hướng dẫn chế biến:',
                                   style:
                                   TextStyle(fontWeight: FontWeight.bold)),
-                              if (dish.ingredients != null)
-                                ...dish.ingredients!
-                                    .map((e) =>
-                                    Text('- ${e.name}: ${e.quantity}'))
-                                    .toList(),
-
-                              const SizedBox(height: 12),
-                              if (dish.cook != null) ...[
-                                const Text('Cách chọn mua nguyên liệu:',
-                                    style:
-                                    TextStyle(fontWeight: FontWeight.bold)),
-                                Text(dish.cook!),
-                              ],
-
-                              const SizedBox(height: 12),
-                              if (dish.notes != null) ...[
-                                const Text('Cách chế biến:',
-                                    style:
-                                    TextStyle(fontWeight: FontWeight.bold)),
-                                Text(dish.notes!),
-                              ],
+                              Text(dish.cook!),
                             ],
-                          ),
+
+                            // const SizedBox(height: 12),
+                            // if (dish.notes != null) ...[
+                            //   const Text('Cách chế biến:',
+                            //       style:
+                            //       TextStyle(fontWeight: FontWeight.bold)),
+                            //   Text(dish.notes!),
+                            // ],
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Lưu ý (từ notes, không phải nhập tay)
+                    if (dish.notes != null && dish.notes!.trim().isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Lưu ý:',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16)),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.orangeAccent),
+                                borderRadius: BorderRadius.circular(8),
+                                color: Colors.white,
+                              ),
+                              child: Text(
+                                dish.notes!,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
-                      const SizedBox(height: 20),
-
-                      // Lưu ý (từ notes, không phải nhập tay)
-                      if (dish.notes != null && dish.notes!.trim().isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Lưu ý:',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16)),
-                              const SizedBox(height: 8),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.orangeAccent),
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: Colors.white,
-                                ),
-                                child: Text(
-                                  dish.notes!,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                      const SizedBox(height: 32),
-                    ],
-                  ),
+                    const SizedBox(height: 32),
+                  ],
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

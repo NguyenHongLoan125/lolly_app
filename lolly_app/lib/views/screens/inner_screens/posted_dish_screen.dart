@@ -111,11 +111,15 @@ class _PostedDishScreenState extends State<PostedDishScreen> {
                           (context, index) {
                         final dishData = dishes[index];
                         // print(dishData);
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 12.0, bottom: 12),
-                          child: PostedDishItemWidget(dishData: dishData),
+                        return GestureDetector(
+                          onTap: () {
+                            context.push('/dish/${dishData['id']}');
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12.0, bottom: 20),
+                            child: PostedDishItemWidget(dishData: dishData),
+                          ),
                         );
-
                       },
                       childCount: dishes.length,
                     ),

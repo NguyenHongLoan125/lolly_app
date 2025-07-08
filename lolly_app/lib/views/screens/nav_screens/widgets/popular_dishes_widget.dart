@@ -67,7 +67,7 @@ class _PopularDishesWidgetState extends State<PopularDishesWidget> {
 
               return GestureDetector(
                 onTap: () {
-                  context.go('/dish/${dishData['id']}');
+                  context.push('/dish/${dishData['id']}');
                   // print("chọn món có id: ");
                   // print(dishData['id']);
                 },
