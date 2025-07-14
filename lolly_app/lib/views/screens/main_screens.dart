@@ -8,12 +8,7 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String location = GoRouter
-        .of(context)
-        .routerDelegate
-        .currentConfiguration
-        .uri
-        .toString();
+    final String location = GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
     int currentIndex = 0;
 
     if (location.contains('/calendar')) {
@@ -28,10 +23,13 @@ class MainScreen extends StatelessWidget {
       currentIndex = 0;
     }
 
+    final bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom != 0;
     return Scaffold(
       body: child,
 
-      floatingActionButton: SizedBox(
+      floatingActionButton: isKeyboardOpen
+          ? null
+          : SizedBox(
         height: 70,
         width: 70,
         child: FloatingActionButton(
@@ -80,17 +78,11 @@ class MainScreen extends StatelessWidget {
           selectedItemColor: const Color(0xFF007400),
           unselectedItemColor: Colors.grey,
           items: const [
-            BottomNavigationBarItem(
-                icon: Icon(Icons.home), label: 'Trang chủ'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.calendar_today), label: 'Lịch'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.add, color: Colors.transparent),
-                label: ''),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.shopping_cart), label: 'Đi chợ'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.person), label: 'Tài khoản'),
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+            BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Lịch'),
+            BottomNavigationBarItem(icon: Icon(Icons.add, color: Colors.transparent), label: ''),
+            BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Đi chợ'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tài khoản'),
           ],
         ),
       ),
