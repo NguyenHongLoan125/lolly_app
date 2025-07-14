@@ -282,11 +282,7 @@ class _AuthWidgetsState extends State<AuthWidgets> {
                             const SizedBox(width: 7,),
                             GestureDetector(
                                 onTap: () {
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(
-                                          builder: (context) => LoginScreen()
-                                      )
-                                  );
+                                  context.go('/login');
                                 },
                                 child: Text('Đăng nhập',
                                   style: TextStyle(
