@@ -132,7 +132,7 @@ class _DraftDishItemWidgetState extends State<DraftDishItemWidget> {
                           padding: const EdgeInsets.only(left: 20),
                           child: Text(
                             _dish.name,
-                            style: GoogleFonts.lato(
+                            style: GoogleFonts.roboto(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: const Color(0xFF1E3354),

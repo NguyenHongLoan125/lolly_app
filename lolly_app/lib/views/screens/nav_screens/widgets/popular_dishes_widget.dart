@@ -68,11 +68,12 @@ class _PopularDishesWidgetState extends State<PopularDishesWidget> {
               return GestureDetector(
                 onTap: () {
                   context.push('/dish/${dishData['id']}');
-                  // print("chọn món có id: ");
-                  // print(dishData['id']);
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 12.0, bottom: 20),
+                  padding: EdgeInsets.only(
+                    right: 12.0,
+                    bottom: index == dishes.length - 1 ? 40 : 20,
+                  ),
                   child: DishItemWidget(dishData: dishData),
                 ),
               );
@@ -80,7 +81,6 @@ class _PopularDishesWidgetState extends State<PopularDishesWidget> {
             childCount: dishes.length,
           ),
         );
-
       },
     );
   }

@@ -84,7 +84,7 @@ Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
     }
 
     // 3. Gộp các nguyên liệu giống nhau
-    Map<String, Map<String, double>> grouped = {};
+    Map<String, Map<String, double?>> grouped = {};
 
     for (final ing in rawIngredients) {
       final quantity = ing.quantity.trim();
@@ -94,11 +94,13 @@ Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
       final match = reg.firstMatch(quantity);
 
       if (match == null) {
-        // Không match regex => giữ nguyên
         grouped[ing.name] ??= {};
-        grouped[ing.name]![quantity] = (grouped[ing.name]![quantity] ?? 0) + 1;
+        if (!grouped[ing.name]!.containsKey(quantity)) {
+          grouped[ing.name]![quantity] = null; // lưu null thay vì 1
+        }
         continue;
       }
+
 
       double value;
 
@@ -129,12 +131,21 @@ Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
       for (final u in units.entries) {
         final unit = u.key;
         final value = u.value;
+        String qtyText;
+
+        if (value == null) {
+          qtyText = unit; // nếu value null, chỉ hiện unit (text gốc)
+        } else {
+          qtyText = '${value.toStringAsFixed(0)} $unit';
+        }
+
         merged.add(Ingredient(
           id: '',
           name: name,
-          quantity: '${value.toStringAsFixed(0)} $unit',
+          quantity: qtyText,
           dishId: '',
         ));
+
       }
     }
 
