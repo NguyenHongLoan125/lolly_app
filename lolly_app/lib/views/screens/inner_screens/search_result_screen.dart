@@ -119,9 +119,20 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                                 itemCount: _results.length,
                                 itemBuilder: (context, index) {
                   final dish = _results[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 12.0, bottom: 12),
-                    child: DishItemWidget(dishData: dish),
+                  // return Padding(
+                  //   padding: const EdgeInsets.only(right: 12.0, bottom: 12),
+                  //   child: DishItemWidget(dishData: dish),
+                  // );
+                  return GestureDetector(
+                    onTap: () {
+                      context.push('/dish/${dish['id']}');
+                      // print("chọn món có id: ");
+                      // print(dish['id']);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12.0, bottom: 20),
+                      child: DishItemWidget(dishData: dish),
+                    ),
                   );
                                 },
                               ),

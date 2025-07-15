@@ -99,14 +99,15 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                backgroundColor: Color(0xFFECF5E3),
+                backgroundColor: const Color(0xFFFFFFFF),
                 title: Text(
-                  dish.dishName ?? '',
+                  'Chi tiết món ăn',
                   style: const TextStyle(
                     color: Color(0xff007400),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                centerTitle: true,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_ios, color: Color(0xff007400)),
                   onPressed: () => Navigator.of(context).pop(),
@@ -122,81 +123,99 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                         borderRadius: BorderRadius.circular(0),
                         child: Image.network(
                           dish.imageUrl!,
-                          height: 200,
+                          height: 250,
                           width: double.infinity,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fill,
                         ),
                       ),
                     const SizedBox(height: 12),
 
                     // Tác giả + hành động
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: 'Tác giả: ',
-                                  style:
-                                  TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: dish.author ?? ''),
-                              ],
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            dish.dishName ?? '',
+                            style: const TextStyle(
+                              color: Color(0xff007400),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                          Row(
+                        ),
+                        const SizedBox(height: 12),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              GestureDetector(
-                                onTap: _toggleLike,
-                                child: Icon(
-                                  isLiked ? Icons.favorite : Icons.favorite_border,
-                                  color: Colors.red,
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: 'Tác giả: ',
+                                      style:
+                                      TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(text: dish.author ?? ''),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              GestureDetector(
-                                onTap: () async {
-                                  final dishId = _dish.id as String?;
-                                  final userId =
-                                      Supabase.instance.client.auth.currentUser?.id;
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: _toggleLike,
+                                    child: Icon(
+                                      isLiked ? Icons.favorite : Icons.favorite_border,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final dishId = _dish.id as String?;
+                                      final userId =
+                                          Supabase.instance.client.auth.currentUser?.id;
 
-                                  if (userId == null || dishId == null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text('Không thể xác định người dùng.')),
-                                    );
-                                    return;
-                                  }
+                                      if (userId == null || dishId == null) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                              content: Text('Không thể xác định người dùng.')),
+                                        );
+                                        return;
+                                      }
 
-                                  final DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2024),
-                                    lastDate: DateTime(2030),
-                                    helpText: 'Chọn ngày thêm vào thực đơn',
-                                    confirmText: 'Thêm',
-                                    cancelText: 'Huỷ',
-                                  );
+                                      final DateTime? pickedDate = await showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(2024),
+                                        lastDate: DateTime(2030),
+                                        helpText: 'Chọn ngày thêm vào thực đơn',
+                                        confirmText: 'Thêm',
+                                        cancelText: 'Huỷ',
+                                      );
 
-                                  if (pickedDate != null) {
-                                    await addToMenu(
-                                      context: context,
-                                      dishId: dishId,
-                                      userId: userId,
-                                      menuDate: pickedDate,
-                                    );
-                                  }
-                                },
-                                child: const Icon(Icons.add_circle_outline, color: Color(0xff007400)),
+                                      if (pickedDate != null) {
+                                        await addToMenu(
+                                          context: context,
+                                          dishId: dishId,
+                                          userId: userId,
+                                          menuDate: pickedDate,
+                                        );
+                                      }
+                                    },
+                                    child: const Icon(Icons.add_circle_outline, color: Color(0xff007400)),
+                                  ),
+                                ],
                               ),
+
                             ],
                           ),
-
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 16),
@@ -204,26 +223,32 @@ class _DishDetailScreenState extends State<DishDetailScreen> {
                     // Thông tin tổng quan (time, độ khó, khẩu phần)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Wrap(
-                        spacing: 16,
-                        runSpacing: 12,
-                        children: [
-                          if (dish.time != null)
-                            _infoIconFromAsset('assets/icons/time.png', dish.time!),
-                          if (dish.difficulty != null)
-                            _infoIconFromAsset('assets/icons/level.png', dish.difficulty!),
-                          if (dish.people != null)
-                            _infoIconFromAsset('assets/icons/people.png', '${dish.people} người'),
-
-                          if (dish.types != null)
-                            ...dish.types!.map((e) => _infoIconFromAsset('assets/icons/category.png', e)),
-                          if (dish.styles != null)
-                            ...dish.styles!.map((e) => _infoIconFromAsset('assets/icons/nation.png', e)),
-                          if (dish.diets != null)
-                            ...dish.diets!.map((e) => _infoIconFromAsset('assets/icons/healthy.png', e)),
-                        ],
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            if (dish.time != null)
+                              _infoIconFromAsset('assets/icons/time.png', dish.time!),
+                            if (dish.difficulty != null)
+                              _infoIconFromAsset('assets/icons/level.png', dish.difficulty!),
+                            if (dish.people != null)
+                              _infoIconFromAsset('assets/icons/people.png', '${dish.people} người'),
+                            if (dish.types != null)
+                              ...dish.types!.map((e) => _infoIconFromAsset('assets/icons/category.png', e)),
+                            if (dish.styles != null)
+                              ...dish.styles!.map((e) => _infoIconFromAsset('assets/icons/nation.png', e)),
+                            if (dish.diets != null)
+                              ...dish.diets!.map((e) => _infoIconFromAsset('assets/icons/healthy.png', e)),
+                          ].expand((widget) => [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 16.0),
+                              child: widget,
+                            )
+                          ]).toList(),
+                        ),
                       ),
                     ),
+
 
 
 
