@@ -123,7 +123,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             },
                             child: Padding(
                               padding: const EdgeInsets.only(right: 12.0, bottom: 20),
-                              child: MenuDishItemWidget(dishData: dishData),
+                              child: MenuDishItemWidget(
+                                dishData: dishData,
+                                selectedDate: selectedDate,
+                              ),
+
                             ),
                           );
                         }
