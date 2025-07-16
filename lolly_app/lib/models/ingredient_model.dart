@@ -1,4 +1,4 @@
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Ingredient {
@@ -22,14 +22,18 @@ class Ingredient {
       dishId: map['dish_id'] ?? '',
     );
   }
-
 }
+
 Future<List<Ingredient>> fetchIngredientsByDish(String dishId) async {
+  // print('Fetching ingredients for dishId: $dishId');
+
   try {
     final response = await Supabase.instance.client
         .from('dish_ingredients')
         .select('ingredient_id, quantity, dish_id, ingredients (ingredient_name)')
         .eq('dish_id', dishId);
+
+    // print('fetchIngredientsByDish response: $response');
 
     return (response as List)
         .map((e) => Ingredient.fromMap(e))
@@ -40,9 +44,26 @@ Future<List<Ingredient>> fetchIngredientsByDish(String dishId) async {
     print(stack);
     return [];
   }
-
 }
 
+/// ✅ Hàm này vẫn giữ nguyên.
+Future<void> deleteCheckedStatusForDish({
+  required String dishId,
+  required DateTime date,
+}) async {
+  final prefs = await SharedPreferences.getInstance();
+  final dateStr = date.toIso8601String().substring(0, 10);
+
+  // Fetch ingredients của dishId
+  final ingredients = await fetchIngredientsByDish(dishId);
+
+  for (final ing in ingredients) {
+    final key = '${ing.name}_$dateStr';
+    await prefs.remove(key);
+  }
+
+  print('Đã xóa checked status cho dishId: $dishId ngày $dateStr');
+}
 Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
   final userId = Supabase.instance.client.auth.currentUser?.id;
 
@@ -75,8 +96,7 @@ Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
     for (final dishId in dishIds) {
       final response = await Supabase.instance.client
           .from('dish_ingredients')
-          .select('ingredient_id, quantity, dish_id, ingredients (ingredient_name)')
-          .eq('dish_id', dishId);
+          .select('ingredient_id, quantity, dish_id, ingredients (ingredient_name)').eq('dish_id', dishId);
 
       rawIngredients.addAll(
         (response as List).map((e) => Ingredient.fromMap(e)).toList(),
@@ -155,57 +175,3 @@ Future<List<Ingredient>> fetchIngredientsByDate(DateTime date) async {
     return [];
   }
 }
-Future<Map<String, bool>> fetchCheckedStatusByDate(DateTime date) async {
-  final user = Supabase.instance.client.auth.currentUser;
-  if (user == null) return {};
-
-  final dateStr = date.toIso8601String().substring(0, 10);
-
-  try {
-    final response = await Supabase.instance.client
-        .from('checked_ingredients')
-        .select()
-        .eq('user_id', user.id)
-        .eq('date', dateStr);
-
-    final Map<String, bool> newStatus = {};
-    for (final item in response) {
-      final name = item['ingredient_name'];
-      final isChecked = item['is_checked'] ?? false;
-      newStatus['${name}_$dateStr'] = isChecked;
-    }
-    return newStatus;
-  } catch (e) {
-    print('Lỗi khi tải trạng thái check: $e');
-    return {};
-  }
-}
-Future<void> saveCheckedStatusToDb({
-  required String userId,
-  required String ingredientName,
-  required bool isChecked,
-  required String dateStr,
-}) async {
-  final client = Supabase.instance.client;
-
-  if (isChecked) {
-    await client
-        .from('checked_ingredients')
-        .upsert({
-      'user_id': userId,
-      'ingredient_name': ingredientName,
-      'is_checked': true,
-      'date': dateStr,
-    },
-        onConflict: 'user_id, ingredient_name, date');
-  } else {
-    await client
-        .from('checked_ingredients')
-        .delete()
-        .eq('user_id', userId)
-        .eq('ingredient_name', ingredientName)
-        .eq('date', dateStr);
-  }
-}
-
-

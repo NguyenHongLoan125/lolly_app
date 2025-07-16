@@ -9,7 +9,8 @@ import '../../../../models/ingredient_model.dart';
 
 class MenuDishItemWidget extends StatefulWidget {
   final Map<String, dynamic> dishData;
-  const MenuDishItemWidget({super.key, required this.dishData});
+  final DateTime selectedDate;
+  const MenuDishItemWidget({super.key, required this.dishData,required this.selectedDate,});
 
   @override
   State<MenuDishItemWidget> createState() => _MenuDishItemWidgetState();
@@ -212,6 +213,7 @@ class _MenuDishItemWidgetState extends State<MenuDishItemWidget> {
                           dishId: dishId,
                           userId: userId,
                           createdAt: DateTime.parse(widget.dishData['created_at']),
+                          menuDate: widget.selectedDate,
                         );
                         setState(() => isDeleted = true);
                       },

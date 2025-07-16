@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lolly_app/views/screens/nav_screens/widgets/week_selector.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/ingredient_model.dart';
 
 class ShoppingScreen extends StatefulWidget {
@@ -26,12 +26,27 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     setState(() {
       selectedDate = date;
       futureIngredients = fetchIngredientsByDate(date);
+      checkedStatus = {}; // ✅ reset trước khi load mới
     });
 
-    final newStatus = await fetchCheckedStatusByDate(date);
+    final newStatus = await fetchCheckedStatusFromPrefs(date);
     setState(() {
       checkedStatus = newStatus;
     });
+  }
+
+  Future<Map<String, bool>> fetchCheckedStatusFromPrefs(DateTime date) async {
+    final prefs = await SharedPreferences.getInstance();
+    final dateStr = date.toIso8601String().substring(0, 10);
+    final allKeys = prefs.getKeys();
+
+    final Map<String, bool> status = {};
+    for (final key in allKeys) {
+      if (key.endsWith('_$dateStr')) {
+        status[key] = prefs.getBool(key) ?? false;
+      }
+    }
+    return status;
   }
 
   void saveCheckedStatus({
@@ -39,19 +54,11 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     required bool isChecked,
     required DateTime date,
   }) async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return;
-
+    final prefs = await SharedPreferences.getInstance();
     final dateStr = date.toIso8601String().substring(0, 10);
-
-    await saveCheckedStatusToDb(
-      userId: user.id,
-      ingredientName: ingredientName,
-      isChecked: isChecked,
-      dateStr: dateStr,
-    );
+    final key = '${ingredientName}_$dateStr';
+    await prefs.setBool(key, isChecked);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -88,11 +95,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
           const SizedBox(height: 20),
           Expanded(
             child: Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(32),
-                  topLeft: Radius.circular(32),
-                ),
+              decoration: const BoxDecoration(borderRadius: BorderRadius.only(
+                topRight: Radius.circular(32),
+                topLeft: Radius.circular(32),
+              ),
                 color: Colors.white,
               ),
               child: FutureBuilder<List<Ingredient>>(
@@ -134,7 +140,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                               '${ingredient.name}: ${ingredient.quantity}',
                               style: const TextStyle(fontSize: 20),
                             ),
-                            value: checkedStatus[key] ?? false,
+                            value: isChecked,
                             onChanged: (value) {
                               setState(() {
                                 checkedStatus[key] = value!;
@@ -149,7 +155,6 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                             controlAffinity: ListTileControlAffinity.leading,
                             visualDensity: const VisualDensity(vertical: -3),
                           );
-
                         },
                       );
                     },
